@@ -287,7 +287,7 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                               offset: Offset(0.0, 10.0),
                             )
                           ]),
-                      child: FlatButton(
+                      child: FloatingActionButton(
                           onPressed: () async {
                             String? actividad;
                             print(
@@ -346,10 +346,7 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                                   actividad = dataestado![0]["actividad"];
                                 });
                               }
-                              print("ESTADO RUTEO: " +
-                                  actividad.toString() +
-                                  " TRANSP. " +
-                                  idtransp!);
+                              print("ESTADO RUTEO: $actividad TRANSP. ${idtransp!}");
                               Navigator.pop(context);
                               if (actividad == "LIBRE") {
                                 moduloselect = dropdownValue.toString().substring(7);
@@ -404,7 +401,7 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                               offset: Offset(0.0, 10.0),
                             )
                           ]),
-                      child: FlatButton(
+                      child: FloatingActionButton(
                           //color: kArandano,
                           onPressed: () {
                             for (var i = 0; i < ddData.length; i++) {
@@ -490,7 +487,7 @@ class CustomDialogsActividad extends StatelessWidget {
               const SizedBox(height: 12.0),
               Align(
                 alignment: Alignment.centerRight,
-                child: FlatButton(
+                child: FloatingActionButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },

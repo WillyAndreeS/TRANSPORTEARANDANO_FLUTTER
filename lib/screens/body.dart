@@ -76,7 +76,7 @@ class _BodyState extends State<Body> {
           print("STATE: " + results);
           if (results.toString().contains("true")) {
             print("backup subido correctamente");
-            Widget okButton = FlatButton(
+            Widget okButton = FloatingActionButton(
               child: const Text("OK"),
               onPressed: () {
                 Navigator.pop(context);
@@ -393,7 +393,7 @@ class CustomDialogsLogout extends StatelessWidget {
                               offset: Offset(0.0, 10.0),
                             )
                           ]),
-                      child: FlatButton(
+                      child: FloatingActionButton(
                           //color: kArandano,
                           onPressed: () {
                             //Navigator.pop(context);
@@ -426,7 +426,7 @@ class CustomDialogsLogout extends StatelessWidget {
                               offset: Offset(0.0, 10.0),
                             )
                           ]),
-                      child: FlatButton(
+                      child: FloatingActionButton(
                           //color: kArandano,
                           onPressed: () {
                             Navigator.pop(context);

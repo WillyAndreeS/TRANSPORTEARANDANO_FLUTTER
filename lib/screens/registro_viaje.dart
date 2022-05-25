@@ -219,7 +219,7 @@ class _RegistroViajeState extends State<RegistroViaje> {
                                 shape: BoxShape.rectangle,
                                 borderRadius: BorderRadius.circular(50),
                               ),
-                              child: FlatButton(
+                              child: FloatingActionButton(
                                   onPressed: () {
                                     print("IDACOPIO: " + widget.idacopio!);
                                     recibirDatosBarras(
@@ -279,7 +279,7 @@ class _RegistroViajeState extends State<RegistroViaje> {
                                 shape: BoxShape.rectangle,
                                 borderRadius: BorderRadius.circular(50),
                               ),
-                              child: FlatButton(
+                              child: FloatingActionButton(
                                   onPressed: () {
                                     scanBarcode();
                                   },
@@ -747,7 +747,7 @@ class _RegistroViajeState extends State<RegistroViaje> {
                                     offset: Offset(0.0, 10.0),
                                   )
                                 ]),
-                            child: FlatButton(
+                            child: FloatingActionButton(
                                 onPressed: () async {
                                   // if (_formKey.currentState.validate()) {
                                   if (_value == "Código de válvula") {
@@ -867,7 +867,7 @@ class _RegistroViajeState extends State<RegistroViaje> {
                                     offset: Offset(0.0, 10.0),
                                   )
                                 ]),
-                            child: FlatButton(
+                            child: FloatingActionButton(
                                 //color: kArandano,
                                 onPressed: () {
                                   Navigator.pop(context);
@@ -1032,7 +1032,7 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                               offset: Offset(0.0, 10.0),
                             )
                           ]),
-                      child: FlatButton(
+                      child: FloatingActionButton(
                           onPressed: () async {
                             print(
                                 "VALOR DROPDOWN: " + dropdownValue.toString());
@@ -1071,7 +1071,7 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                               offset: Offset(0.0, 10.0),
                             )
                           ]),
-                      child: FlatButton(
+                      child: FloatingActionButton(
                           //color: kArandano,
                           onPressed: () {
                             Navigator.pop(context);
@@ -1154,7 +1154,7 @@ class CustomDialogsActividad extends StatelessWidget {
               const SizedBox(height: 12.0),
               Align(
                 alignment: Alignment.centerRight,
-                child: FlatButton(
+                child: FloatingActionButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },

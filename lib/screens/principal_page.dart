@@ -118,7 +118,7 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
       }
     } on SocketException catch (_) {
       codigoInternet = 0;
-      Widget okButton = FlatButton(
+      Widget okButton = FloatingActionButton(
         child: const Text("OK"),
         onPressed: () {
           Navigator.pop(context);
@@ -357,7 +357,7 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
                               print("sincronización: " + response.toString());
                             }
                             Navigator.pop(context);
-                            Widget okButton = FlatButton(
+                            Widget okButton = FloatingActionButton(
                               child: const Text("OK"),
                               onPressed: () {
                                 estadoSincronizacion = 1;
@@ -374,7 +374,7 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
                                           actions: [okButton]));
                                 });
                           } else {
-                            Widget okButton = FlatButton(
+                            Widget okButton = FloatingActionButton(
                               child: const Text("OK"),
                               onPressed: () {
                                 estadoSincronizacion = 0;
@@ -514,7 +514,7 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
                           '[LoginPage] _authenticateUser: Invalid credentials');
                     }
                   } else {
-                    Widget okButton = FlatButton(
+                    Widget okButton = FloatingActionButton(
                       child: const Text("OK"),
                       onPressed: () {
                         estadoSincronizacion = 1;
@@ -697,7 +697,7 @@ class CustomDialogsBuscar extends StatelessWidget {
                               offset: Offset(0.0, 10.0),
                             )
                           ]),
-                      child: FlatButton(
+                      child: FloatingActionButton(
                           //color: kArandano,
                           onPressed: () {
                             Navigator.pop(context);

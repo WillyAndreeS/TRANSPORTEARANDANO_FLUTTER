@@ -125,11 +125,6 @@ Future<void> recibirDatosAcopiosMapeados(List params) async {
       print("ACOPIO MAPEADO: " + acopiosmapeados![0]["CANTIDAD_JABAS"]);
       if (acopiosmapeados!.isNotEmpty) {
         for (var i = 0; i < acopiosmapeados!.length; i++) {
-          /*print(acopiosmapeados![i]["CANTIDAD_JABAS"] + ' '
-              + acopiosmapeados![i]["ALIAS"] + ' '
-              + acopiosmapeados![i]["LATITUD"] + ' '
-              + acopiosmapeados![i]["LONGITUD"] + ' '
-              + acopiosmapeados![i]["IDLUGAR"]);*/
           DatabaseProvider.db
               .insertAcopios(
               int.parse(acopioinicial),
@@ -1733,8 +1728,69 @@ class _GMapState extends State<GMap> {
                                     ],
                                   ),
                                 ),
-                                const Icon(Icons.location_pin,
-                                    color: kArandano, size: 50)
+                                IconButton(
+                                  icon: const Icon(Icons.upload_outlined),
+                                  onPressed: () async {
+                                  //  setState(() {
+                                     /* try {
+                                        final resulte = await InternetAddress.lookup('google.com');
+                                        if (resulte.isNotEmpty && resulte[0].rawAddress.isNotEmpty) {
+                                          String xml = params[0];
+                                          List dData = params[1];
+                                          String idviajesrestult = params[2];
+                                          String results;
+                                          HttpOverrides.global = MyHttpOverrides();
+                                          var response = await http.post(
+                                              Uri.parse(url_base +
+                                                  "acp/index.php/transportearandano/setAcopiosDetailNota"),
+                                              body: {"xml": xml});
+                                          var extraerData = json.decode(response.body);
+                                          results = extraerData["state"].toString();
+
+                                          if (results.toString().contains("TRUE")) {
+                                            if (dData.isNotEmpty) {
+                                              for (var i = 0; i < dData.length; i++) {
+                                                DatabaseProvider.db
+                                                    .updateJabasViaje(int.parse(idviajesrestult), dData[i]["ALIAS"]);
+                                              }
+                                            }
+                                          }
+                                        }else{
+                                          Widget okButton = FloatingActionButton(
+                                            child: const Text("OK"),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                          );
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return Center(
+                                                    child: AlertDialog(
+                                                        content: const Text(
+                                                            'Revisa tu conexión a internet'),
+                                                        actions: [okButton]));
+                                              });
+                                        }
+                                      } on SocketException catch (e) {
+                                        Widget okButton = FloatingActionButton(
+                                          child: const Text("OK"),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                        );
+                                        showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return Center(
+                                                  child: AlertDialog(
+                                                      content: const Text(
+                                                          'Revisa tu conexión a internet'),
+                                                      actions: [okButton]));
+                                            });
+                                      }*/
+                                  },
+                                ),
                               ],
                             )),
                         // ignore: avoid_unnecessary_containers
@@ -1837,7 +1893,7 @@ class _GMapState extends State<GMap> {
                           }
                         } on SocketException catch (_) {
                           codigo_internet = 0;
-                          Widget okButton = FlatButton(
+                          Widget okButton = FloatingActionButton(
                             child: const Text("OK"),
                             onPressed: () {
                               Navigator.pop(context);
@@ -1896,7 +1952,7 @@ class _GMapState extends State<GMap> {
                           }
                         } on SocketException catch (_) {
                           codigo_internet = 0;
-                          Widget okButton = FlatButton(
+                          Widget okButton = FloatingActionButton(
                             child: const Text("OK"),
                             onPressed: () {
                               Navigator.pop(context);
@@ -1915,149 +1971,6 @@ class _GMapState extends State<GMap> {
                         }
                       },
                     ),
-                    /*GestureDetector(
-                      child: Container(
-                        margin: const EdgeInsets.only(top: 10, right: 10),
-                        child: ClipOval(
-                            child: Container(
-                                color: kArandano,
-                                //margin: EdgeInsets.only(top: 45),
-                                padding: const EdgeInsets.all(5),
-                                child: const Icon(
-                                  Icons.cloud_upload,
-                                  color: Colors.white,
-                                  size: 32,
-                                ))),
-                        decoration: BoxDecoration(
-                            color: Colors.grey,
-                            shape: BoxShape.rectangle,
-                            borderRadius: BorderRadius.circular(25),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 10.0,
-                                offset: Offset(0.0, 10.0),
-                              )
-                            ]),
-                      ),
-                      onTap: () async {
-                        Widget okButton = FlatButton(
-                            child: const Text("CONFIRMAR"),
-                            onPressed: () async {
-                              StringBuffer xmlViajesAcopio = StringBuffer();
-
-                              String cabeceraXml =
-                                  "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><SOLICITUD_DESTINO>";
-                              String itemXml = "";
-                              DatabaseProvider.db
-                                  .getJabasWithoutAlias(int.parse(result))
-                                  .then((List<Jabas> jabas) {
-                                if (jabas.isNotEmpty) {
-                                  for (var i = 0; i < jabas.length; i++) {
-                                    itemXml += "<Item IDVIAJES=\"" +
-                                        jabas[i].idviaje.toString() +
-                                        "\" LATITUD=\"" +
-                                        jabas[i].lat! +
-                                        "\" LONGITUD=\"" +
-                                        jabas[i].long! +
-                                        "\" ALIAS=\"" +
-                                        jabas[i].alias! +
-                                        "\" CANTJABAS=\"" +
-                                        jabas[i].jabascargadas.toString() +
-                                        "\" ESTADO=\"" +
-                                        "1" +
-                                        "\" DESCRIPCION=\"" +
-                                        jabas[i].descripcion! +
-                                        "\" JABASCARGADAS=\"" +
-                                        jabas[i].jabascargadas.toString() +
-                                        "\" FLLEGADA=\"" +
-                                        jabas[i].fllegada! +
-                                        "\" EXPORTABLE=\"" +
-                                        jabas[i].exportable.toString() +
-                                        "\" NACIONAL=\"" +
-                                        jabas[i].nacional.toString() +
-                                        "\" DESMEDRO=\"" +
-                                        jabas[i].desmedro.toString() +
-                                        "\" VARIEDAD=\"" +
-                                        jabas[i].variedad.toString() +
-                                        "\" CONDICION=\"" +
-                                        jabas[i].condicion.toString() +
-                                        "\" CONSUMIDOR=\"" +
-                                        jabas[i].consumidor.toString() +
-                                        "\" VALVULA=\"" +
-                                        jabas[i].valvula.toString() +
-                                        "\" OBSERVACIONES=\"" +
-                                        jabas[i].observaciones.toString() +
-                                        "\" />";
-
-                                    //item += item;
-                                    DatabaseProvider.db.updateJabasViaje(
-                                        jabas[i].idviaje!, jabas[i].alias!);
-                                  }
-                                } else {
-                                  itemXml += "<Item IDVIAJES=\"" +
-                                      "0" +
-                                      "\" LATITUD=\"" +
-                                      "00000000" +
-                                      "\" LONGITUD=\"" +
-                                      "00000000" +
-                                      "\" ALIAS=\"" +
-                                      "V0" +
-                                      "\" CANTJABAS=\"" +
-                                      "0" +
-                                      "\" ESTADO=\"" +
-                                      "1" +
-                                      "\" DESCRIPCION=\"" +
-                                      "-" +
-                                      "\" JABASCARGADAS=\"" +
-                                      "0" +
-                                      "\" FLLEGADA=\"" +
-                                      "0" +
-                                      "\" EXPORTABLE=\"" +
-                                      "0" +
-                                      "\" NACIONAL=\"" +
-                                      "0" +
-                                      "\" DESMEDRO=\"" +
-                                      "0" +
-                                      "\" VARIEDAD=\"" +
-                                      "-" +
-                                      "\" CONDICION=\"" +
-                                      "-" +
-                                      "\" CONSUMIDOR=\"" +
-                                      "-" +
-                                      "\" VALVULA=\"" +
-                                      "-" +
-                                      "\" OBSERVACIONES=\"" +
-                                      "-" +
-                                      "\" />";
-                                }
-                                String pieXml = "</SOLICITUD_DESTINO>";
-                                String xml2 = cabeceraXml + itemXml + pieXml;
-                                xmlViajesAcopio.write(xml2);
-                                guardarAcopios(xmlViajesAcopio.toString());
-                                print("XML2: " + xmlViajesAcopio.toString());
-                              });
-                              reiniciarAcopios();
-                              reiniciarAcopiosSinUso();
-                              Navigator.pop(context);
-                            });
-                        Widget cancelButton = FlatButton(
-                            child: const Text("CANCELAR"),
-                            onPressed: () async {
-                              Navigator.pop(context);
-                            });
-                        showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                                  content: const Text(
-                                      "¿Estas seguro de habilitar todos tus acopios?"),
-                                  actions: [okButton, cancelButton],
-                                ));
-
-                        //  Navigator.pop(context);
-                        // zoomInMarker();
-                      },
-                    ),*/
                     GestureDetector(
                       child: Container(
                         margin: const EdgeInsets.only(top: 10, right: 10),
@@ -2101,7 +2014,7 @@ class _GMapState extends State<GMap> {
 
                         if (double.parse(_placeDistance.toStringAsFixed(2)) <=
                             50) {
-                          Widget okButton = FlatButton(
+                          Widget okButton = FloatingActionButton(
                             child: const Text("CONFIRMAR"),
                             onPressed: () async {
                               showDialog(
@@ -2222,7 +2135,7 @@ class _GMapState extends State<GMap> {
                               }
                             },
                           );
-                          Widget cancelButton = FlatButton(
+                          Widget cancelButton = FloatingActionButton(
                             child: const Text("CANCELAR"),
                             onPressed: () {
                               Navigator.pop(context);
@@ -2236,7 +2149,7 @@ class _GMapState extends State<GMap> {
                                     actions: [okButton, cancelButton],
                                   ));
                         } else {
-                          Widget cancelButton = FlatButton(
+                          Widget cancelButton = FloatingActionButton(
                             child: const Text("CANCELAR"),
                             onPressed: () {
                               Navigator.pop(context);

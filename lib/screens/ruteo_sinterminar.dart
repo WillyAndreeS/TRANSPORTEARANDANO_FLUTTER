@@ -1797,7 +1797,7 @@ class _GMapState extends State<GMap> {
                           }
                         } on SocketException catch (_) {
                           codigoInternet = 0;
-                          Widget okButton = FlatButton(
+                          Widget okButton = FloatingActionButton(
                             child: const Text("OK"),
                             onPressed: () {
                               Navigator.pop(context);
@@ -1875,7 +1875,7 @@ class _GMapState extends State<GMap> {
                           }
                         } on SocketException catch (_) {
                           codigoInternet = 0;
-                          Widget okButton = FlatButton(
+                          Widget okButton = FloatingActionButton(
                             child: const Text("OK"),
                             onPressed: () {
                               Navigator.pop(context);
@@ -1931,7 +1931,7 @@ class _GMapState extends State<GMap> {
                             _placeDistance.toStringAsFixed(2).toString());
                         /*  if (double.parse(_placeDistance.toStringAsFixed(2)) <=
                             50) {*/
-                        Widget okButton = FlatButton(
+                        Widget okButton = FloatingActionButton(
                             child: const Text("CONFIRMAR"),
                             onPressed: () async {
                               showDialog(
@@ -2052,7 +2052,7 @@ class _GMapState extends State<GMap> {
                                 });
                               }
                             });
-                        Widget cancelButton = FlatButton(
+                        Widget cancelButton = FloatingActionButton(
                           child: const Text("CANCELAR"),
                           onPressed: () {
                             Navigator.pop(context);
@@ -2138,7 +2138,7 @@ class CustomDialogsActividad extends StatelessWidget {
               const SizedBox(height: 12.0),
               Align(
                 alignment: Alignment.centerRight,
-                child: FlatButton(
+                child: FloatingActionButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
