@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "81436150104",
+    "project_id": "transporte-arandano",
+    "storage_bucket": "transporte-arandano.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:81436150104:android:01c538af2f4835871fbd2d",
+        "android_client_info": {
+          "package_name": "com.example.transporte_arandano"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "81436150104-aafi6ofib3cqq7idtlm96rtmftfs541m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTF0nELNfq8Md3UR2KQILSgWXuT4wb3YA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "81436150104-aafi6ofib3cqq7idtlm96rtmftfs541m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
