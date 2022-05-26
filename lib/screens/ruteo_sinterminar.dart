@@ -38,7 +38,7 @@ Set<Marker> _markers = HashSet<Marker>();
 int? cantidadJabas;
 int? capacidad;
 int capacidadSinCargar = 0;
-int? activaracopiosrestantes = 0;
+
 int jabasMoment = 0;
 var extraerData1;
 List? datapunto;
@@ -49,8 +49,10 @@ int? jabasporlimpiare = 0;
 int jabasporlimpiar = 0;
 int? jabasporlimpiarn = 0;
 int? jabasporlimpiard = 0;
+int? jabasporlimpiarfc = 0;
 int? jabasporlimpiares = 0;
 int jabasporlimpiars = 0;
+int jabasporlimpiarfcs = 0;
 int? jabasporlimpiarns = 0;
 int? jabasporlimpiards = 0;
 var extraerDataAcopiosMapeados;
@@ -82,8 +84,7 @@ Future<void> recibirDatosReloadHilo(List params) async {
       String results;
       HttpOverrides.global = MyHttpOverrides();
       var response = await http.post(
-          Uri.parse(url_base +
-              "acp/index.php/transportearandano/setAcopiosDetailNota"),
+          Uri.parse("${url_base}acp/index.php/transportearandano/setAcopiosDetailNota"),
           body: {"xml": xml});
       //if (mounted) {
       //setState(() {
@@ -92,10 +93,7 @@ Future<void> recibirDatosReloadHilo(List params) async {
       if (results.toString().contains("TRUE")) {
         if (dData.isNotEmpty) {
           for (var i = 0; i < dData.length; i++) {
-            print("RESULTADO DE INSERCIÓN DE RUTAS: " +
-                results.toString() +
-                " array " +
-                dData[i]["ALIAS"].toString());
+            print("RESULTADO DE INSERCIÓN DE RUTAS: $results array ${dData[i]["ALIAS"]}");
             DatabaseProvider.db.updateJabasViaje(
                 int.parse(idviajesrestult), dData[i]["ALIAS"]);
           }
@@ -118,24 +116,17 @@ Future<void> recibirDatosAcopiosMapeados(List params) async {
       String modulo = params[1];
       String acopioinicial = acopio;
       int activaracopiosrest = params[2];
-      print("activado: "+activaracopiosrest.toString());
+      print("activado: $activaracopiosrest");
       HttpOverrides.global = MyHttpOverrides();
       //String results;
       var response = await http.get(
-          Uri.parse(url_base +
-              "WSPowerBI/controller/transportearandano.php?accion=acopiosmapeados&idviajes=" +
-              acopioinicial),
+          Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=acopiosmapeados&idviajes=$acopioinicial"),
           headers: {"Accept": "application/json"});
       extraerDataAcopiosMapeados = json.decode(response.body);
       acopiosmapeados = extraerDataAcopiosMapeados["datos"];
       print("ACOPIO MAPEADO: " + acopiosmapeados![0]["CANTIDAD_JABAS"]);
       if (acopiosmapeados!.isNotEmpty) {
         for (var i = 0; i < acopiosmapeados!.length; i++) {
-          /*print(acopiosmapeados![i]["CANTIDAD_JABAS"] + ' '
-              + acopiosmapeados![i]["ALIAS"] + ' '
-              + acopiosmapeados![i]["LATITUD"] + ' '
-              + acopiosmapeados![i]["LONGITUD"] + ' '
-              + acopiosmapeados![i]["IDLUGAR"]);*/
           DatabaseProvider.db
               .insertAcopios(
               int.parse(acopioinicial),
@@ -150,9 +141,7 @@ Future<void> recibirDatosAcopiosMapeados(List params) async {
 //----------------------------------------------------------
       if(activaracopiosrest == 1){
         var response1 = await http.get(
-            Uri.parse(url_base +
-                "WSPowerBI/controller/transportearandano.php?accion=puntoiniciomanual&modulo=" +
-                modulo),
+            Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=puntoiniciomanual&modulo=$modulo"),
             headers: {"Accept": "application/json"});
         extraerData1 = json.decode(response1.body);
         datapunto = extraerData1["datos"];
@@ -166,7 +155,8 @@ Future<void> recibirDatosAcopiosMapeados(List params) async {
                 datapunto![i]["LATITUD"],
                 datapunto![i]["LONGITUD"],
                 '-',
-                int.parse(datapunto![i]["IDACOPIO"]));
+                int.parse(datapunto![i]["IDACOPIO"]),
+            datapunto![i]["NAME"]);
           }
         }
       }
@@ -206,6 +196,7 @@ class _GMapState extends State<GMap> {
   bool resetToggle = false;
   String? nombre;
   String? buscarDireccion;
+  int? activaracopiosrestantes2 = 0;
   TextEditingController? mycontrolleracopio;
   _GMapState({this.nombre});
   GoogleMapController? _mapController;
@@ -297,7 +288,7 @@ class _GMapState extends State<GMap> {
 
   Future<void> subirJabas() async {
     Timer.periodic(const Duration(minutes: 1), (Timer timer) async {
-      saveBoxAcopios(widget.idviajes.toString(), modulo!,activaracopiosrestantes!);
+      saveBoxAcopios(widget.idviajes.toString(), modulo!,activaracopiosrestantes2!);
       // -------------------------- acopios mapeados------------------
       var cantidadrestada = 0;
       DatabaseProvider.db
@@ -306,7 +297,7 @@ class _GMapState extends State<GMap> {
 
         for (var i = 0; i < acopios.length; i++) {
           int cantidadJabasRestantes = acopios[i].cantidadjabas! ;
-          print("JABAS ACTUALES: " + acopios[i].alias! + " jabas: " +acopios[i].cantidadjabas.toString());
+          print("JABAS ACTUALES: ${acopios[i].alias!} jabas: ${acopios[i].cantidadjabas}");
 
           DatabaseProvider.db
               .getJabasWithId(int.parse(widget.idviajes.toString()), acopios[i].alias!)
@@ -355,7 +346,7 @@ class _GMapState extends State<GMap> {
                     }),
               );
             } else {
-              print("JABAS ACTUALES2: " + acopios[i].cantidadjabas.toString());
+              print("JABAS ACTUALES2: ${acopios[i].cantidadjabas}");
               var bitmapData = await _createAvatar(
                   80, 90, acopios[i].cantidadjabas.toString());
               var bitmapDescriptor = BitmapDescriptor.fromBytes(bitmapData);
@@ -403,7 +394,7 @@ class _GMapState extends State<GMap> {
 
         for (var i = 0; i < acopiosrestantes.length; i++) {
           int cantidadJabasRestantes = acopiosrestantes[i].cantidadjabas! ;
-          print("JABAS ACTUALES: " + acopiosrestantes[i].alias! + " jabas: " +acopiosrestantes[i].cantidadjabas.toString());
+          print("JABAS ACTUALES: ${acopiosrestantes[i].alias!} jabas: ${acopiosrestantes[i].cantidadjabas}");
 
           DatabaseProvider.db
               .getJabasWithId(int.parse(widget.idviajes.toString()), acopiosrestantes[i].alias!)
@@ -414,79 +405,98 @@ class _GMapState extends State<GMap> {
               jabas[0].jabascargadas == null ? 0 : jabas[0].jabascargadas!;
               _markers.removeWhere(
                       (m) => m.markerId.value == acopiosrestantes[i].alias!);
-              var bitmapData = await _createAvatarRestantes(
-                  80,
-                  90,
-                  (cantidadJabasRestantes -
-                      // ignore: prefer_if_null_operators, unnecessary_null_comparison
-                      (cantidadrestada2 == null ? 0 : cantidadrestada2))
-                      .toString());
+              var bitmapData;
+              if(acopiosrestantes[i].name! == '-'){
+                bitmapData = await _createAvatarBusqueda(
+                    80,
+                    90,
+                    (cantidadJabasRestantes -
+                        // ignore: prefer_if_null_operators, unnecessary_null_comparison
+                        (cantidadrestada2 == null ? 0 : cantidadrestada2))
+                        .toString());
+              }else{
+                bitmapData = await _createAvatarRestantes(
+                    80,
+                    90,
+                    (cantidadJabasRestantes -
+                        // ignore: prefer_if_null_operators, unnecessary_null_comparison
+                        (cantidadrestada2 == null ? 0 : cantidadrestada2))
+                        .toString());
+              }
+
               var bitmapDescriptor = BitmapDescriptor.fromBytes(bitmapData);
-              _markers.add(
-                Marker(
-                    markerId: MarkerId(acopiosrestantes[i].alias!),
-                    position: LatLng(
-                        double.parse(acopiosrestantes[i].latitud!),
-                        double.parse(acopiosrestantes[i].longitud!)),
-                    icon: bitmapDescriptor,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              RegistroViaje(
-                                title: "NOTA DE TRASLADO",
-                                description: acopiosrestantes[i].descripcion!,
-                                imagen: "assets/images/arandano_icon.png",
-                                cantidad: cantidadJabasRestantes.toString(),
-                                alias: acopiosrestantes[i].alias!,
-                                latitud: acopiosrestantes[i].latitud!,
-                                longitud: acopiosrestantes[i].longitud!,
-                                idacopio: acopiosrestantes[i].idlugar.toString(),
-                                // area: data[i]["AREA"],
-                                idviajes: widget.idviajes.toString(),
-                                tipoacopio: '-',
-                              ),
-                        ),
-                      );
-                    }),
-              );
+              if((cantidadJabasRestantes - (cantidadrestada2 == null ? 0 : cantidadrestada2)) > 0) {
+                _markers.add(
+                  Marker(
+                      markerId: MarkerId(acopiosrestantes[i].alias!),
+                      position: LatLng(
+                          double.parse(acopiosrestantes[i].latitud!),
+                          double.parse(acopiosrestantes[i].longitud!)),
+                      icon: bitmapDescriptor,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                RegistroViaje(
+                                  title: "ACOPIO DE: " + acopiosrestantes![i].name!,
+                                  description: acopiosrestantes[i].descripcion!,
+                                  imagen: "assets/images/arandano_icon.png",
+                                  cantidad: cantidadJabasRestantes.toString(),
+                                  alias: acopiosrestantes[i].alias!,
+                                  latitud: acopiosrestantes[i].latitud!,
+                                  longitud: acopiosrestantes[i].longitud!,
+                                  idacopio: acopiosrestantes[i].idlugar
+                                      .toString(),
+                                  // area: data[i]["AREA"],
+                                  idviajes: widget.idviajes.toString(),
+                                  tipoacopio: '-',
+                                ),
+                          ),
+                        );
+                      }),
+                );
+              }
             } else {
-              print("JABAS ACTUALES2: " + acopiosrestantes[i].cantidadjabas.toString());
+              print("JABAS ACTUALES2: ${acopiosrestantes[i].cantidadjabas}");
               var bitmapData = await _createAvatarRestantes(
                   80, 90, acopiosrestantes[i].cantidadjabas.toString());
               var bitmapDescriptor = BitmapDescriptor.fromBytes(bitmapData);
               _markers.removeWhere(
                       (m) => m.markerId.value == acopiosrestantes[i].alias!);
-              _markers.add(
-                Marker(
-                    markerId: MarkerId(acopiosrestantes[i].alias!),
-                    position: LatLng(
-                        double.parse(acopiosrestantes[i].latitud!),
-                        double.parse(acopiosrestantes[i].longitud!)),
-                    icon: bitmapDescriptor,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              RegistroViaje(
-                                title: "NOTA DE TRASLADO",
-                                description: acopiosrestantes[i].descripcion!,
-                                imagen: "assets/images/arandano_icon.png",
-                                cantidad: acopiosrestantes[i].cantidadjabas.toString(),
-                                alias: acopiosrestantes[i].alias!,
-                                latitud: acopiosrestantes[i].latitud!,
-                                longitud: acopiosrestantes[i].longitud!,
-                                idacopio: acopiosrestantes[i].idlugar.toString(),
-                                // area: data[i]["AREA"],
-                                idviajes: widget.idviajes.toString(),
-                                tipoacopio: '-',
-                              ),
-                        ),
-                      );
-                    }),
-              );
+              if( int.parse(acopiosrestantes[i].cantidadjabas.toString()) > 0) {
+                _markers.add(
+                  Marker(
+                      markerId: MarkerId(acopiosrestantes[i].alias!),
+                      position: LatLng(
+                          double.parse(acopiosrestantes[i].latitud!),
+                          double.parse(acopiosrestantes[i].longitud!)),
+                      icon: bitmapDescriptor,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                RegistroViaje(
+                                  title: "ACOPIO DE: " + acopiosrestantes[i].name!,
+                                  description: acopiosrestantes[i].descripcion!,
+                                  imagen: "assets/images/arandano_icon.png",
+                                  cantidad: acopiosrestantes[i].cantidadjabas
+                                      .toString(),
+                                  alias: acopiosrestantes[i].alias!,
+                                  latitud: acopiosrestantes[i].latitud!,
+                                  longitud: acopiosrestantes[i].longitud!,
+                                  idacopio: acopiosrestantes[i].idlugar
+                                      .toString(),
+                                  // area: data[i]["AREA"],
+                                  idviajes: widget.idviajes.toString(),
+                                  tipoacopio: '-',
+                                ),
+                          ),
+                        );
+                      }),
+                );
+              }
             }
           });
         }
@@ -505,41 +515,7 @@ class _GMapState extends State<GMap> {
          // if (jabas.isNotEmpty) {
             for (var i = 0; i < jabas.length; i++) {
               if(jabas[i].jabascargadas != null) {
-              itemXml += "<Item IDVIAJES=\"" +
-                  jabas[i].idviaje.toString() +
-                  "\" LATITUD=\"" +
-                  jabas[i].lat! +
-                  "\" LONGITUD=\"" +
-                  jabas[i].long! +
-                  "\" ALIAS=\"" +
-                  jabas[i].alias! +
-                  "\" CANTJABAS=\"" +
-                  jabas[i].jabascargadas.toString() +
-                  "\" ESTADO=\"" +
-                  "1" +
-                  "\" DESCRIPCION=\"" +
-                  jabas[i].descripcion! +
-                  "\" JABASCARGADAS=\"" +
-                  jabas[i].jabascargadas.toString() +
-                  "\" FLLEGADA=\"" +
-                  jabas[i].fllegada! +
-                  "\" EXPORTABLE=\"" +
-                  jabas[i].exportable.toString() +
-                  "\" NACIONAL=\"" +
-                  jabas[i].nacional.toString() +
-                  "\" DESMEDRO=\"" +
-                  jabas[i].desmedro.toString() +
-                  "\" VARIEDAD=\"" +
-                  jabas[i].variedad.toString() +
-                  "\" CONDICION=\"" +
-                  jabas[i].condicion.toString() +
-                  "\" CONSUMIDOR=\"" +
-                  jabas[i].consumidor.toString() +
-                  "\" VALVULA=\"" +
-                  jabas[i].valvula.toString() +
-                  "\" OBSERVACIONES=\"" +
-                  jabas[i].observaciones.toString() +
-                  "\" />";
+              itemXml += "<Item IDVIAJES=\"${jabas[i].idviaje}\" LATITUD=\"${jabas[i].lat!}\" LONGITUD=\"${jabas[i].long!}\" ALIAS=\"${jabas[i].alias!}\" CANTJABAS=\"${jabas[i].jabascargadas}\" ESTADO=\"1\" DESCRIPCION=\"${jabas[i].descripcion!}\" JABASCARGADAS=\"${jabas[i].jabascargadas}\" FLLEGADA=\"${jabas[i].fllegada!}\" EXPORTABLE=\"${jabas[i].exportable}\" NACIONAL=\"${jabas[i].nacional}\" DESMEDRO=\"${jabas[i].desmedro}\" FRUTAC=\"${jabas[i].frutac}\" VARIEDAD=\"${jabas[i].variedad}\" CONDICION=\"${jabas[i].condicion}\" CONSUMIDOR=\"${jabas[i].consumidor}\" VALVULA=\"${jabas[i].valvula}\" OBSERVACIONES=\"${jabas[i].observaciones}\" />";
               var objeto = {
                 "ALIAS": jabas[i].alias,
                 "IDVIAJES": jabas[i].idviaje.toString()
@@ -549,18 +525,21 @@ class _GMapState extends State<GMap> {
               jabasporlimpiare = jabasporlimpiare == null ? 0 : jabasporlimpiare! + int.parse(jabas[i].exportable.toString());
               jabasporlimpiarn =  jabasporlimpiarn == null ? 0 : jabasporlimpiarn! + int.parse(jabas[i].nacional.toString());
               jabasporlimpiard =  jabasporlimpiard == null ? 0 : jabasporlimpiard! + int.parse(jabas[i].desmedro.toString());
+              jabasporlimpiarfc =  jabasporlimpiarfc == null ? 0 : jabasporlimpiarfc! + int.parse(jabas[i].frutac.toString());
             }
 
           }
             setState(() {
               jabasporlimpiar = 0;
-              print("JABAS POR SUBIR: "+jabasporlimpiare.toString() + " : " + jabasporlimpiarn.toString() + " : " + jabasporlimpiard.toString() );
+              print("JABAS POR SUBIR: $jabasporlimpiare : $jabasporlimpiarn : $jabasporlimpiard: $jabasporlimpiarfc" );
               jabasporlimpiar = int.parse(jabasporlimpiare.toString()) +
                   int.parse(jabasporlimpiarn.toString()) +
-                  int.parse(jabasporlimpiard.toString());
+                  int.parse(jabasporlimpiard.toString()) +
+                  int.parse(jabasporlimpiarfc.toString());
               jabasporlimpiare = 0;
               jabasporlimpiarn =  0;
               jabasporlimpiard =  0;
+              jabasporlimpiarfc = 0;
             });
 
 
@@ -568,7 +547,7 @@ class _GMapState extends State<GMap> {
           String xml2 = cabeceraXml + itemXml + pieXml;
           xmlViajesAcopio.write(xml2);
           saveBox(xmlViajesAcopio.toString(), ddData,widget.idviajes.toString());
-          print("XML2: " + xmlViajesAcopio.toString());
+          print("XML2: $xmlViajesAcopio");
         });
         DatabaseProvider.db
             .getJabasSubidas(int.parse(widget.idviajes.toString()))
@@ -584,23 +563,169 @@ class _GMapState extends State<GMap> {
               jabasporlimpiards =
               (jabasporlimpiards == null ? 0 : jabasporlimpiards!) +
                   int.parse(jabasenviadas[i].desmedro.toString());
+              jabasporlimpiarfcs =
+              jabasporlimpiarfcs == null ? 0 : jabasporlimpiarfcs! +
+                  int.parse(jabasenviadas[i].frutac.toString());
             }
           }
           setState(() {
             jabasporlimpiars = 0;
-            print("JABAS subidas: "+jabasporlimpiares.toString() + " : " + jabasporlimpiarns.toString() + " : " + jabasporlimpiards.toString() );
+            print("JABAS subidas: $jabasporlimpiares : $jabasporlimpiarns : $jabasporlimpiards : $jabasporlimpiarfcs" );
             jabasporlimpiars = int.parse(jabasporlimpiares.toString()) +
                 int.parse(jabasporlimpiarns.toString()) +
-                int.parse(jabasporlimpiards.toString());
+                int.parse(jabasporlimpiards.toString()) +
+                int.parse(jabasporlimpiarfcs.toString());
             jabasporlimpiares = 0;
             jabasporlimpiarns =  0;
             jabasporlimpiards =  0;
+            jabasporlimpiarfcs =  0;
           });
         });
       } on Exception catch (e) {
         print('Error causador por: $e');
       }
     });
+  }
+
+  Future<void> subirJabasManual() async {
+    try {
+
+      StringBuffer xmlViajesAcopio = StringBuffer();
+      var ddData = [];
+      var objeto;
+      String cabeceraXml =
+          "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><SOLICITUD_DESTINO>";
+      String itemXml = "";
+      DatabaseProvider.db
+          .getJabasWithoutAlias2(int.parse(widget.idviajes.toString()))
+          .then((List<Jabas> jabas) async{
+        for (var i = 0; i < jabas.length; i++) {
+          if(jabas[i].jabascargadas != null) {
+            itemXml += "<Item IDVIAJES=\"${jabas[i].idviaje}\" LATITUD=\"${jabas[i].lat!}\" LONGITUD=\"${jabas[i].long!}\" ALIAS=\"${jabas[i].alias!}\" CANTJABAS=\"${jabas[i].jabascargadas}\" ESTADO=\"1\" DESCRIPCION=\"${jabas[i].descripcion!}\" JABASCARGADAS=\"${jabas[i].jabascargadas}\" FLLEGADA=\"${jabas[i].fllegada!}\" EXPORTABLE=\"${jabas[i].exportable}\" NACIONAL=\"${jabas[i].nacional}\" DESMEDRO=\"${jabas[i].desmedro}\" FRUTAC=\"${jabas[i].frutac}\" VARIEDAD=\"${jabas[i].variedad}\" CONDICION=\"${jabas[i].condicion}\" CONSUMIDOR=\"${jabas[i].consumidor}\" VALVULA=\"${jabas[i].valvula}\" OBSERVACIONES=\"${jabas[i].observaciones}\" />";
+            objeto = {
+              "ALIAS": jabas[i].alias
+            };
+            ddData.add(objeto);
+            reiniciarAcopioIndividual(jabas[i].alias!);
+            jabasporlimpiare = jabasporlimpiare == null ? 0 : jabasporlimpiare! + int.parse(jabas[i].exportable.toString());
+            jabasporlimpiarn =  jabasporlimpiarn == null ? 0 : jabasporlimpiarn! + int.parse(jabas[i].nacional.toString());
+            jabasporlimpiard =  jabasporlimpiard == null ? 0 : jabasporlimpiard! + int.parse(jabas[i].desmedro.toString());
+            jabasporlimpiarfc =  jabasporlimpiarfc == null ? 0 : jabasporlimpiarfc! + int.parse(jabas[i].frutac.toString());
+          }
+        }
+        //  }
+        setState(() {
+          jabasporlimpiar = 0;
+          jabasporlimpiar = int.parse(jabasporlimpiare.toString()) +
+              int.parse(jabasporlimpiarn.toString()) +
+              int.parse(jabasporlimpiard.toString()) +
+              int.parse(jabasporlimpiarfc.toString());
+          jabasporlimpiare = 0;
+          jabasporlimpiarn =  0;
+          jabasporlimpiard =  0;
+          jabasporlimpiarfc = 0;
+        });
+        String pieXml = "</SOLICITUD_DESTINO>";
+        String xml2 = cabeceraXml + itemXml + pieXml;
+        print("XML CARGADO$xml2");
+        xmlViajesAcopio.write(xml2);
+        try {
+          final resulte = await InternetAddress.lookup('google.com');
+          if (resulte.isNotEmpty && resulte[0].rawAddress.isNotEmpty) {
+            String xml = xmlViajesAcopio.toString();
+            List dData = ddData;
+            String idviajesrestult = widget.idviajes.toString();
+            String results;
+            HttpOverrides.global = MyHttpOverrides();
+            var response = await http.post(
+                Uri.parse("${url_base}acp/index.php/transportearandano/setAcopiosDetailNota"),
+                body: {"xml": xml});
+            var extraerData = json.decode(response.body);
+            results = extraerData["state"].toString();
+
+            if (results.toString().contains("TRUE")) {
+              if (dData.isNotEmpty) {
+                for (var i = 0; i < dData.length; i++) {
+                  DatabaseProvider.db
+                      .updateJabasViaje(int.parse(idviajesrestult), dData[i]["ALIAS"]);
+
+                }
+                recibirAcopiosMapeados();
+               // recibirAcopiosRestantes();
+              }
+            }
+          }else{
+            Widget okButton = TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            );
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Center(
+                      child: AlertDialog(
+                          content: const Text(
+                              'Revisa tu conexión a internet'),
+                          actions: [okButton]));
+                });
+          }
+        } on Exception catch (e) {
+          Widget okButton = TextButton(
+            child: const Text("OK"),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          );
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return Center(
+                    child: AlertDialog(
+                        content: const Text(
+                            'Revisa tu conexión a internet'),
+                        actions: [okButton]));
+              });
+        }
+
+      });
+
+      /*DatabaseProvider.db
+          .getJabasSubidas(int.parse(widget.idviajes.toString()))
+          .then((List<Jabas> jabasenviadas) {
+        for (var i = 0; i < jabasenviadas.length; i++) {
+          if(jabasenviadas[i].jabascargadas != null) {
+            jabasporlimpiares =
+            jabasporlimpiares == null ? 0 : jabasporlimpiares! +
+                int.parse(jabasenviadas[i].exportable.toString());
+            jabasporlimpiarns =
+            jabasporlimpiarns == null ? 0 : jabasporlimpiarns! +
+                int.parse(jabasenviadas[i].nacional.toString());
+            jabasporlimpiards =
+            jabasporlimpiards == null ? 0 : jabasporlimpiards! +
+                int.parse(jabasenviadas[i].desmedro.toString());
+            jabasporlimpiarfcs =
+            jabasporlimpiarfcs == null ? 0 : jabasporlimpiarfcs! +
+                int.parse(jabasenviadas[i].frutac.toString());
+          }
+        }
+        setState(() {
+          jabasporlimpiars = 0;
+          print("JABAS subidas: $jabasporlimpiares : $jabasporlimpiarns : $jabasporlimpiards : $jabasporlimpiarfcs" );
+          jabasporlimpiars = int.parse(jabasporlimpiares.toString()) +
+              int.parse(jabasporlimpiarns.toString()) +
+              int.parse(jabasporlimpiards.toString()) +
+              int.parse(jabasporlimpiarfcs.toString());
+          jabasporlimpiares = 0;
+          jabasporlimpiarns =  0;
+          jabasporlimpiards =  0;
+          jabasporlimpiarfcs =  0;
+        });
+      });*/
+    } on Exception catch (e) {
+      print('Error causador por: $e');
+    }
   }
 
   Future<void> recibirAcopiosMapeados() async {
@@ -628,9 +753,7 @@ class _GMapState extends State<GMap> {
         });
 
     var response = await http.get(
-        Uri.parse(url_base +
-            "WSPowerBI/controller/transportearandano.php?accion=acopiosmapeados&idviajes=" +
-            widget.idviajes.toString()),
+        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=acopiosmapeados&idviajes=${widget.idviajes}"),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
@@ -673,6 +796,8 @@ class _GMapState extends State<GMap> {
                         description: acopiosmapeados![i]["DESCRIPCION"],
                         imagen: "assets/images/ar andano_icon.png",
                         cantidad: acopiosmapeados![i]["CANTJABAS"],
+                        latitud: acopiosmapeados![i]["LATITUD"],
+                        longitud: acopiosmapeados![i]["LONGITUD"],
                         alias: acopiosmapeados![i]["ALIAS"],
                         idacopio: acopiosmapeados![i]["IDLUGAR"],
                         idviajes: widget.idviajes.toString(),
@@ -701,6 +826,8 @@ class _GMapState extends State<GMap> {
                         description: acopiosmapeados![i]["DESCRIPCION"],
                         imagen: "assets/images/ar andano_icon.png",
                         cantidad: acopiosmapeados![i]["CANTJABAS"],
+                        latitud: acopiosmapeados![i]["LATITUD"],
+                        longitud: acopiosmapeados![i]["LONGITUD"],
                         alias: acopiosmapeados![i]["ALIAS"],
                         idacopio: acopiosmapeados![i]["IDLUGAR"],
                         // area: data[i]["AREA"],
@@ -715,7 +842,7 @@ class _GMapState extends State<GMap> {
         if (widget.ruta != '-') {
           final extraerDatas = Map<String, dynamic>.from(json.decode(widget.ruta!));
           data1 = extraerDatas["datos"]["coordenadas"];
-          print("RESPUESTA RUTA: " + data1.toString());
+          print("RESPUESTA RUTA: $data1");
           List<LatLng> polylineLatLongs = [];
           distancia = extraerDatas["datos"]["costo"].toString();
           for (var i = 0; i < data1!.length; i++) {
@@ -743,7 +870,7 @@ class _GMapState extends State<GMap> {
 
   Future<void> recibirAcopiosRestantes() async {
 
-    activaracopiosrestantes = 1;
+    activaracopiosrestantes2 = 1;
    // var extraerDataAcopiosRestantes;
     // var extraerData1;
     var cantidadrestada = 0;
@@ -770,9 +897,7 @@ class _GMapState extends State<GMap> {
                   )));
         });
     var response1 = await http.get(
-        Uri.parse(url_base +
-            "WSPowerBI/controller/transportearandano.php?accion=puntoiniciomanual&modulo=" +
-            modulo!),
+        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=puntoiniciomanual&modulo=${modulo!}"),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
@@ -795,72 +920,88 @@ class _GMapState extends State<GMap> {
         if (jabas.isNotEmpty) {
           _markers.removeWhere(
                   (m) => m.markerId.value == datapunto![i]["ALIAS"]);
-          var bitmapData = await _createAvatarRestantes(
-              80, 90,
-              (cantidadJabasRestantes - cantidadrestada).toString());
+          var bitmapData;
+          if(datapunto![i]["NAME"] == "-"){
+            bitmapData = await _createAvatarBusqueda(
+                80, 90,
+                (cantidadJabasRestantes - cantidadrestada).toString());
+          }else{
+            bitmapData = await _createAvatarRestantes(
+                80, 90,
+                (cantidadJabasRestantes - cantidadrestada).toString());
+          }
+
           var bitmapDescriptor = BitmapDescriptor.fromBytes(bitmapData);
-          _markers.add(
-            Marker(
-                markerId: MarkerId(datapunto![i]["ALIAS"]),
-                position: LatLng(
-                    double.parse(datapunto![i]["LATITUD"]),
-                    double.parse(datapunto![i]["LONGITUD"])),
-                icon: bitmapDescriptor,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          RegistroViaje(
-                            title: "NOTA DE TRASLADO",
-                            description: datapunto![i]["DESCRIPCION"],
-                            imagen: "assets/images/ar andano_icon.png",
-                            cantidad: cantidadJabasRestantes.toString(),
-                            alias: datapunto![i]["ALIAS"],
-                            latitud: datapunto![i]["LATITUD"],
-                            longitud: datapunto![i]["LONGITUD"],
-                            idacopio: datapunto![i]["IDACOPIO"],
-                            // area: data[i]["AREA"],
-                            idviajes: widget.idviajes.toString(),
-                            tipoacopio: '-',
-                          ),
-                    ),
-                  );
-                }),
-          );
+          if((cantidadJabasRestantes - cantidadrestada) > 0) {
+            _markers.add(
+              Marker(
+                  markerId: MarkerId(datapunto![i]["ALIAS"]),
+                  position: LatLng(
+                      double.parse(datapunto![i]["LATITUD"]),
+                      double.parse(datapunto![i]["LONGITUD"])),
+                  icon: bitmapDescriptor,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            RegistroViaje(
+                              title: "ACOPIO DE: " + datapunto![i]["NAME"],
+                              description: datapunto![i]["DESCRIPCION"],
+                              imagen: "assets/images/ar andano_icon.png",
+                              cantidad: cantidadJabasRestantes.toString(),
+                              alias: datapunto![i]["ALIAS"],
+                              latitud: datapunto![i]["LATITUD"],
+                              longitud: datapunto![i]["LONGITUD"],
+                              idacopio: datapunto![i]["IDACOPIO"],
+                              idviajes: widget.idviajes.toString(),
+                              tipoacopio: '-',
+                            ),
+                      ),
+                    );
+                  }),
+            );
+          }
         } else {
-          var bitmapData =
-          await _createAvatarRestantes(
-              80, 90, datapunto![i]["CANTIDAD_JABAS"]);
+          var bitmapData;
+          if (datapunto![i]["NAME"] == "-") {
+            bitmapData = await _createAvatarBusqueda(
+                80, 90, datapunto![i]["CANTIDAD_JABAS"]);
+          } else {
+            bitmapData =
+            await _createAvatarRestantes(
+                80, 90, datapunto![i]["CANTIDAD_JABAS"]);
+          }
           var bitmapDescriptor = BitmapDescriptor.fromBytes(bitmapData);
-          _markers.add(
-            Marker(
-                markerId: MarkerId(datapunto![i]["ALIAS"]),
-                position: LatLng(double.parse(datapunto![i]["LATITUD"]),
-                    double.parse(datapunto![i]["LONGITUD"])),
-                icon: bitmapDescriptor,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          RegistroViaje(
-                            title: "NOTA DE TRASLADO",
-                            description: datapunto![i]["DESCRIPCION"],
-                            imagen: "assets/images/ar andano_icon.png",
-                            cantidad: datapunto![i]["CANTIDAD_JABAS"],
-                            alias: datapunto![i]["ALIAS"],
-                            latitud: datapunto![i]["LATITUD"],
-                            longitud: datapunto![i]["LONGITUD"],
-                            idacopio: datapunto![i]["IDACOPIO"],
-                            // area: data[i]["AREA"],
-                            idviajes:widget.idviajes.toString(),
-                            tipoacopio: '-',
-                          ),
-                    ),
-                  );
-                }),
-          );
+          if (int.parse(datapunto![i]["CANTIDAD_JABAS"]) > 0){
+            _markers.add(
+              Marker(
+                  markerId: MarkerId(datapunto![i]["ALIAS"]),
+                  position: LatLng(double.parse(datapunto![i]["LATITUD"]),
+                      double.parse(datapunto![i]["LONGITUD"])),
+                  icon: bitmapDescriptor,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            RegistroViaje(
+                              title: "ACOPIO DE: " + datapunto![i]["NAME"],
+                              description: datapunto![i]["DESCRIPCION"],
+                              imagen: "assets/images/ar andano_icon.png",
+                              cantidad: datapunto![i]["CANTIDAD_JABAS"],
+                              alias: datapunto![i]["ALIAS"],
+                              latitud: datapunto![i]["LATITUD"],
+                              longitud: datapunto![i]["LONGITUD"],
+                              idacopio: datapunto![i]["IDACOPIO"],
+                              idviajes: widget.idviajes.toString(),
+                              tipoacopio: '-',
+                            ),
+                      ),
+                    );
+                  }),
+            );
+        }
         }
         var objeto = {
           // Le agregas la fecha
@@ -877,7 +1018,7 @@ class _GMapState extends State<GMap> {
   void showPinsOnMap() {
     estado = 0;
     var pinPosition = const LatLng(-7.066769, -79.558876);
-    print("--------------------------" + pinPosition.toString());
+    print("--------------------------$pinPosition");
 
     _markers.add(Marker(
         markerId: const MarkerId('sourcePin'),
@@ -974,9 +1115,7 @@ class _GMapState extends State<GMap> {
                   )));
         });
     var response = await http.get(
-        Uri.parse(url_base +
-            "WSPowerBI/controller/transportearandano.php?accion=acopiosmapeados&idviajes=" +
-            widget.idviajes.toString()),
+        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=acopiosmapeados&idviajes=${widget.idviajes}"),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
@@ -1025,6 +1164,8 @@ class _GMapState extends State<GMap> {
                         description: acopiosmapeados![i]["DESCRIPCION"],
                         imagen: "assets/images/ar andano_icon.png",
                         cantidad: acopiosmapeados![i]["CANTJABAS"],
+                        latitud: acopiosmapeados![i]["LATITUD"],
+                        longitud: acopiosmapeados![i]["LONGITUD"],
                         alias: acopiosmapeados![i]["ALIAS"],
                         idacopio: acopiosmapeados![i]["IDLUGAR"],
                         idviajes: widget.idviajes.toString(),
@@ -1053,6 +1194,8 @@ class _GMapState extends State<GMap> {
                         description: acopiosmapeados![i]["DESCRIPCION"],
                         imagen: "assets/images/ar andano_icon.png",
                         cantidad: acopiosmapeados![i]["CANTJABAS"],
+                        latitud: acopiosmapeados![i]["LATITUD"],
+                        longitud: acopiosmapeados![i]["LONGITUD"],
                         alias: acopiosmapeados![i]["ALIAS"],
                         idacopio: acopiosmapeados![i]["IDLUGAR"],
                         // area: data[i]["AREA"],
@@ -1067,7 +1210,7 @@ class _GMapState extends State<GMap> {
         if (widget.ruta != '-') {
           final extraerDatas = Map<String, dynamic>.from(json.decode(widget.ruta!));
           data1 = extraerDatas["datos"]["coordenadas"];
-          print("RESPUESTA RUTA: " + data1.toString());
+          print("RESPUESTA RUTA: $data1");
           List<LatLng> polylineLatLongs = [];
           distancia = extraerDatas["datos"]["costo"].toString();
           for (var i = 0; i < data1!.length; i++) {
@@ -1237,15 +1380,13 @@ class _GMapState extends State<GMap> {
   Future<void> reiniciarAcopiosSinUso() async {
     // print("ALIAS ESTADO: " + pacopios);
     var response = await http.get(
-        Uri.parse(url_base +
-            "acp/index.php/transportearandano/setReinicioAcopiosSinUso?accion=reiniciosinuso&idviajes=" +
-            widget.idviajes.toString()),
+        Uri.parse("${url_base}acp/index.php/transportearandano/setReinicioAcopiosSinUso?accion=reiniciosinuso&idviajes=${widget.idviajes}"),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
         var extraerData = json.decode(response.body);
         String result = extraerData["state"].toString();
-        print("RESULTADO: " + result.toString());
+        print("RESULTADO: $result");
       });
     }
   }
@@ -1253,28 +1394,26 @@ class _GMapState extends State<GMap> {
   Future<void> reiniciarAcopios() async {
     // print("ALIAS ESTADO: " + pacopios);
     var response = await http.get(
-        Uri.parse(url_base +
-            "acp/index.php/transportearandano/setReinicioAcopios?accion=reinicio&idviajes=" +
-            widget.idviajes.toString()),
+        Uri.parse("${url_base}acp/index.php/transportearandano/setReinicioAcopios?accion=reinicio&idviajes=${widget.idviajes}"),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
         var extraerData = json.decode(response.body);
         String result = extraerData["state"].toString();
-        print("RESULTADO: " + result.toString());
+        print("RESULTADO: $result");
       });
     }
   }
 
   Future<void> guardarRuta2(String xml) async {
     var response = await http.post(
-        Uri.parse(url_base + "acp/index.php/transportearandano/setRutasDetail"),
+        Uri.parse("${url_base}acp/index.php/transportearandano/setRutasDetail"),
         body: {"xml": xml});
     if (mounted) {
       setState(() {
         var extraerData = json.decode(response.body);
         String result = extraerData["state"].toString();
-        print("RESULTADO DE INSERCIÓN DE RUTAS: " + result.toString());
+        print("RESULTADO DE INSERCIÓN DE RUTAS: $result");
       });
     }
   }
@@ -1282,50 +1421,40 @@ class _GMapState extends State<GMap> {
   Future<void> guardarAcopios(String xml) async {
     var response = await http.post(
         Uri.parse(
-            url_base + "acp/index.php/transportearandano/setAcopiosDetailNota"),
+            "${url_base}acp/index.php/transportearandano/setAcopiosDetailNota"),
         body: {"xml": xml});
     if (mounted) {
       setState(() {
         var extraerData = json.decode(response.body);
         String result = extraerData["state"].toString();
-        print("RESULTADO DE INSERCIÓN DE RUTAS: " + result.toString());
+        print("RESULTADO DE INSERCIÓN DE RUTAS: $result");
       });
     }
   }
 
   Future<void> reiniciarAcopioIndividual(String alias) async {
-    print("ALIAS ESTADO: " + alias);
+    print("ALIAS ESTADO: $alias");
     var response = await http.get(
-        Uri.parse(url_base +
-            "acp/index.php/transportearandano/setReinicioAcopiosIndividual?accion=reinicioindividual&idviajes=" +
-            widget.idviajes.toString() +
-            "&alias=" +
-            alias),
+        Uri.parse("${url_base}acp/index.php/transportearandano/setReinicioAcopiosIndividual?accion=reinicioindividual&idviajes=${widget.idviajes}&alias=$alias"),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
         var extraerData = json.decode(response.body);
         String result = extraerData["state"].toString();
-        print("RESULTADO ACOPIO: " + result.toString());
+        print("RESULTADO ACOPIO: $result");
       });
     }
   }
 
   Future<void> guardarRuta(double latitud, double longitud) async {
     var response = await http.get(
-        Uri.parse(url_base +
-            "acp/index.php/transportearandano/setGuardarRutas?accion=saverutas&idviajes=" +
-            widget.idviajes.toString() +
-            "&latitud=" +
-            latitud.toString() +
-            "&longitud=" +
-            longitud.toString()),
+        Uri.parse("${url_base}acp/index.php/transportearandano/setGuardarRutas?accion=saverutas&idviajes=${widget.idviajes}&latitud=$latitud&longitud=$longitud"),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
         var extraerData = json.decode(response.body);
         String result = extraerData["state"].toString();
-        print("RESULTADO DE INSERCIÓN DE RUTAS: " + result.toString());
+        print("RESULTADO DE INSERCIÓN DE RUTAS: $result");
       });
     }
   }
@@ -1379,9 +1508,7 @@ class _GMapState extends State<GMap> {
         });
     List? jabaindividual;
     var response = await http.get(
-        Uri.parse(url_base +
-            "WSPowerBI/controller/transportearandano.php?accion=acopioindividual&idlugar=" +
-            buscarDireccion!),
+        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=acopioindividual&idlugar=${buscarDireccion!}"),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
@@ -1511,7 +1638,7 @@ class _GMapState extends State<GMap> {
               onMapCreated: _onMapCreated,
               initialCameraPosition: initialCameraPosition,
               onTap: (LatLng loc) {
-                pinPillPosition = -200;
+               // pinPillPosition = -200;
               },
               mapType: MapType.satellite,
               markers: _markers,
@@ -1661,36 +1788,47 @@ class _GMapState extends State<GMap> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text("Arandano - Módulo " + (modulo == null ? '-' : modulo!),
-                                          style: TextStyle(
-                                              color: Colors.grey[700],
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15)),
+                                  InkWell(
+                                  child: Text("Arandano - Módulo ${modulo == null ? '-' : modulo!}",
+                                      style: TextStyle(
+                                          color: Colors.grey[700],
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15)),
+                                    onTap: (){
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) =>
+                                          const CustomDialogsActividad2(
+                                              title: "Selecciona el módulo \n al que ingresarás",
+                                              description:
+                                              'No hay acopios disponibles \n en este modulo',
+                                              imagen:
+                                              "assets/images/warning.png"));
+                                    }),
                                       Text(
-                                          jabasporlimpiar.toString() +
-                                              ' JABAS POR SUBIR', style: const TextStyle(
+                                          '$jabasporlimpiar JABAS POR SUBIR', style: const TextStyle(
                                           fontWeight: FontWeight.bold, color: Colors.red)),
-                                      Text(jabasporlimpiars.toString() +
-                                          ' Jabas cargadas', style: const TextStyle(
+                                      Text('$jabasporlimpiars Jabas cargadas', style: const TextStyle(
                                           fontWeight: FontWeight.bold)),
                                       Text(
-                                          'Distancia total: ' +
-                                              double.parse((distancia == null
+                                          'Distancia total: ${double.parse((distancia == null
                                                   ? '0'
                                                   : distancia!))
-                                                  .toStringAsFixed(2)
-                                                  .toString() +
-                                              ' ' +
-                                              (distancia == null
-                                                  ? 'METROS': 'METROS')
-                                                  .toString(),
+                                                  .toStringAsFixed(2)} ${distancia == null
+                                                  ? 'METROS': 'METROS'}',
                                           style:
                                           const TextStyle(color: kArandano))
                                     ],
                                   ),
                                 ),
-                                const Icon(Icons.location_pin,
-                                    color: kArandano, size: 50)
+                                IconButton(
+                                  icon: const Icon(Icons.upload_outlined),
+                                  onPressed: () async {
+                                    setState(() {
+                                      subirJabasManual();
+                                    });
+                                  },
+                                ),
                               ],
                             )),
                         // ignore: avoid_unnecessary_containers
@@ -1717,12 +1855,12 @@ class _GMapState extends State<GMap> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('CONDUCTOR: ' + (name == null ? '-' : name!),
+                                    Text('CONDUCTOR: ${name == null ? '-' : name!}',
                                         style: const TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     // ignore: unnecessary_null_comparison
 
-                                    Text('Vehículo: ' + (placa == null ? '-' : placa!)),
+                                    Text('Vehículo: ${placa == null ? '-' : placa!}'),
                                   ],
                                 ),
                                 ),
@@ -1741,16 +1879,6 @@ class _GMapState extends State<GMap> {
                     GestureDetector(
                       child: Container(
                         margin: const EdgeInsets.only(right: 10),
-                        child: ClipOval(
-                            child: Container(
-                                color: kArandano,
-                                //margin: EdgeInsets.only(top: 45),
-                                padding: const EdgeInsets.all(5),
-                                child: const Icon(
-                                  Icons.sync,
-                                  color: Colors.white,
-                                  size: 32,
-                                ))),
                         decoration: BoxDecoration(
                             color: kArandano,
                             shape: BoxShape.rectangle,
@@ -1762,6 +1890,16 @@ class _GMapState extends State<GMap> {
                                 offset: Offset(0.0, 10.0),
                               )
                             ]),
+                        child: ClipOval(
+                            child: Container(
+                                color: kArandano,
+                                //margin: EdgeInsets.only(top: 45),
+                                padding: const EdgeInsets.all(5),
+                                child: const Icon(
+                                  Icons.sync,
+                                  color: Colors.white,
+                                  size: 32,
+                                ))),
                       ),
                       onTap: () async {
                         showDialog(
@@ -1797,7 +1935,7 @@ class _GMapState extends State<GMap> {
                           }
                         } on SocketException catch (_) {
                           codigoInternet = 0;
-                          Widget okButton = FloatingActionButton(
+                          Widget okButton = TextButton(
                             child: const Text("OK"),
                             onPressed: () {
                               Navigator.pop(context);
@@ -1821,16 +1959,6 @@ class _GMapState extends State<GMap> {
                     GestureDetector(
                       child: Container(
                         margin: const EdgeInsets.only(right: 10),
-                        child: ClipOval(
-                            child: Container(
-                                color: kArandano,
-                                //margin: EdgeInsets.only(top: 45),
-                                padding: const EdgeInsets.all(5),
-                                child: const Icon(
-                                  Icons.add_location_alt,
-                                  color: Colors.white,
-                                  size: 32,
-                                ))),
                         decoration: BoxDecoration(
                             color: Colors.grey,
                             shape: BoxShape.rectangle,
@@ -1842,6 +1970,16 @@ class _GMapState extends State<GMap> {
                                 offset: Offset(0.0, 10.0),
                               )
                             ]),
+                        child: ClipOval(
+                            child: Container(
+                                color: kArandano,
+                                //margin: EdgeInsets.only(top: 45),
+                                padding: const EdgeInsets.all(5),
+                                child: const Icon(
+                                  Icons.add_location_alt,
+                                  color: Colors.white,
+                                  size: 32,
+                                ))),
                       ),
                       onTap: () async {
                         showDialog(
@@ -1875,7 +2013,7 @@ class _GMapState extends State<GMap> {
                           }
                         } on SocketException catch (_) {
                           codigoInternet = 0;
-                          Widget okButton = FloatingActionButton(
+                          Widget okButton = TextButton(
                             child: const Text("OK"),
                             onPressed: () {
                               Navigator.pop(context);
@@ -1899,16 +2037,6 @@ class _GMapState extends State<GMap> {
                     GestureDetector(
                       child: Container(
                         margin: const EdgeInsets.only(top: 10, right: 10),
-                        child: ClipOval(
-                            child: Container(
-                                color: kPanetone,
-                                //margin: EdgeInsets.only(top: 45),
-                                padding: const EdgeInsets.all(5),
-                                child: const Icon(
-                                  Icons.exit_to_app,
-                                  color: Colors.white,
-                                  size: 32,
-                                ))),
                         decoration: BoxDecoration(
                             color: kArandano,
                             shape: BoxShape.rectangle,
@@ -1920,18 +2048,27 @@ class _GMapState extends State<GMap> {
                                 offset: Offset(0.0, 10.0),
                               )
                             ]),
+                        child: ClipOval(
+                            child: Container(
+                                color: kPanetone,
+                                //margin: EdgeInsets.only(top: 45),
+                                padding: const EdgeInsets.all(5),
+                                child: const Icon(
+                                  Icons.exit_to_app,
+                                  color: Colors.white,
+                                  size: 32,
+                                ))),
                       ),
                       onTap: () async {
                         totalDistance = _coordinateDistance(
                             -7.067140, -79.558578,
                             currentLocationes!.latitude,
                             currentLocationes!.longitude);
-                        var _placeDistance = totalDistance * 1000;
-                        print("DISTANCIA DEL PUNTO INICIAL: " +
-                            _placeDistance.toStringAsFixed(2).toString());
+                        var placeDistance = totalDistance * 1000;
+                        print("DISTANCIA DEL PUNTO INICIAL: ${placeDistance.toStringAsFixed(2)}");
                         /*  if (double.parse(_placeDistance.toStringAsFixed(2)) <=
                             50) {*/
-                        Widget okButton = FloatingActionButton(
+                        Widget okButton = TextButton(
                             child: const Text("CONFIRMAR"),
                             onPressed: () async {
                               showDialog(
@@ -1955,18 +2092,14 @@ class _GMapState extends State<GMap> {
                                   });
                               estadoinsert = "terminado";
                               var response = await http.get(
-                                  Uri.parse(url_base +
-                                      "acp/index.php/transportearandano/setTravelUpdate?accion=estadoViaje&idviajes=" +
-                                      widget.idviajes.toString() +
-                                      "&tipo=1"),
+                                  Uri.parse("${url_base}acp/index.php/transportearandano/setTravelUpdate?accion=estadoViaje&idviajes=${widget.idviajes}&tipo=1"),
                                   headers: {"Accept": "application/json"});
                               if (mounted) {
                                 setState(() {
                                   var extraerData = json.decode(response.body);
                                   String results =
                                       extraerData["state"].toString();
-                                  print("RESULTADO ESTADO VIAJE: " +
-                                      results.toString());
+                                  print("RESULTADO ESTADO VIAJE: $results");
                                   if (results == "true") {
                                     StringBuffer xmlViajesAcopio =
                                         StringBuffer();
@@ -1974,56 +2107,18 @@ class _GMapState extends State<GMap> {
                                     String cabeceraXml =
                                         "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><SOLICITUD_DESTINO>";
 
-                                    print("XML_cabecera: " +
-                                        cabeceraXml.toString());
+                                    print("XML_cabecera: $cabeceraXml");
                                     String itemXml = "";
                                     DatabaseProvider.db
                                         .getJabasWithoutAlias(widget.idviajes!)
                                         .then((List<Jabas> jabas) {
                                       if (jabas.isNotEmpty) {
                                         for (var i = 0; i < jabas.length; i++) {
-                                          itemXml += "<Item IDVIAJES=\"" +
-                                              jabas[i].idviaje.toString() +
-                                              "\" LATITUD=\"" +
-                                              jabas[i].lat! +
-                                              "\" LONGITUD=\"" +
-                                              jabas[i].long! +
-                                              "\" ALIAS=\"" +
-                                              jabas[i].alias! +
-                                              "\" CANTJABAS=\"" +
-                                              jabas[i]
-                                                  .jabascargadas
-                                                  .toString() +
-                                              "\" ESTADO=\"" +
-                                              "1" +
-                                              "\" DESCRIPCION=\"" +
-                                              jabas[i].descripcion! +
-                                              "\" JABASCARGADAS=\"" +
-                                              jabas[i]
-                                                  .jabascargadas
-                                                  .toString() +
-                                              "\" FLLEGADA=\"" +
-                                              jabas[i].fllegada! +
-                                              "\" EXPORTABLE=\"" +
-                                              jabas[i].exportable.toString() +
-                                              "\" NACIONAL=\"" +
-                                              jabas[i].nacional.toString() +
-                                              "\" DESMEDRO=\"" +
-                                              jabas[i].desmedro.toString() +
-                                              "\" VARIEDAD=\"" +
-                                              jabas[i].variedad.toString() +
-                                              "\" CONDICION=\"" +
-                                              jabas[i].condicion.toString() +
-                                              "\" CONSUMIDOR=\"" +
-                                              jabas[i].consumidor.toString() +
-                                              "\" VALVULA=\"" +
-                                              jabas[i].valvula.toString() +
-                                              "\" OBSERVACIONES=\"" +
-                                              jabas[i]
-                                                  .observaciones
-                                                  .toString() +
-                                              "\" />";
-                                          print("ITEM XML2: " + itemXml);
+                                          itemXml += "<Item IDVIAJES=\"${jabas[i].idviaje}\" LATITUD=\"${jabas[i].lat!}\" LONGITUD=\"${jabas[i].long!}\" ALIAS=\"${jabas[i].alias!}\" CANTJABAS=\"${jabas[i]
+                                                  .jabascargadas}\" ESTADO=\"1\" DESCRIPCION=\"${jabas[i].descripcion!}\" JABASCARGADAS=\"${jabas[i]
+                                                  .jabascargadas}\" FLLEGADA=\"${jabas[i].fllegada!}\" EXPORTABLE=\"${jabas[i].exportable}\" NACIONAL=\"${jabas[i].nacional}\" DESMEDRO=\"${jabas[i].desmedro}\" FRUTAC=\"${jabas[i].frutac}\" VARIEDAD=\"${jabas[i].variedad}\" CONDICION=\"${jabas[i].condicion}\" CONSUMIDOR=\"${jabas[i].consumidor}\" VALVULA=\"${jabas[i].valvula}\" OBSERVACIONES=\"${jabas[i]
+                                                  .observaciones}\" />";
+                                          print("ITEM XML2: $itemXml");
                                           DatabaseProvider.db.updateJabasViaje(
                                               jabas[i].idviaje!,
                                               jabas[i].alias!);
@@ -2035,8 +2130,7 @@ class _GMapState extends State<GMap> {
                                       xmlViajesAcopio.write(xml2);
                                       guardarAcopios(
                                           xmlViajesAcopio.toString());
-                                      print("XML2: " +
-                                          xmlViajesAcopio.toString());
+                                      print("XML2: $xmlViajesAcopio");
                                     });
                                     reiniciarAcopios();
                                     Navigator.pop(context);
@@ -2052,7 +2146,7 @@ class _GMapState extends State<GMap> {
                                 });
                               }
                             });
-                        Widget cancelButton = FloatingActionButton(
+                        Widget cancelButton = TextButton(
                           child: const Text("CANCELAR"),
                           onPressed: () {
                             Navigator.pop(context);
@@ -2138,7 +2232,7 @@ class CustomDialogsActividad extends StatelessWidget {
               const SizedBox(height: 12.0),
               Align(
                 alignment: Alignment.centerRight,
-                child: FloatingActionButton(
+                child: TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -2160,6 +2254,153 @@ class CustomDialogsActividad extends StatelessWidget {
             backgroundColor: Colors.white,
             radius: 50,
             backgroundImage: AssetImage(imagen!),
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class CustomDialogsActividad2 extends StatefulWidget {
+  final String? title, description, buttontext, imagen;
+  final Image? image;
+
+
+  const CustomDialogsActividad2(
+      {Key? key,
+        this.title,
+        this.description,
+        this.buttontext,
+        this.image,
+        this.imagen})
+      : super(key: key);
+
+  @override
+  _CustomDialogsActividad2State createState() => _CustomDialogsActividad2State();
+}
+
+class _CustomDialogsActividad2State extends State<CustomDialogsActividad2> {
+  String? dropdownValue;
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      child: dialogContents(context),
+    );
+  }
+
+  dialogContents(BuildContext context) {
+
+    Size size = MediaQuery.of(context).size;
+    return Stack(
+      children: <Widget>[
+        Container(
+          padding:
+          const EdgeInsets.only(top: 50, bottom: 16, left: 16, right: 16),
+          margin: const EdgeInsets.only(top: 16),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(50),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10.0,
+                  offset: Offset(0.0, 10.0),
+                )
+              ]),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const SizedBox(height: 40.0),
+              Text(
+                widget.title!,
+                style: const TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const Divider(),
+              const SizedBox(height: 10.0),
+              DropdownButton<String>(
+                value: dropdownValue,
+                icon: const Icon(Icons.arrow_downward),
+                iconSize: 24,
+                elevation: 16,
+                hint: const Text('Selecciona el módulo'),
+                style: const TextStyle(color: Colors.deepPurple),
+                underline: Container(
+                  height: 2,
+                  color: Colors.deepPurpleAccent,
+                ),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    dropdownValue = newValue;
+                  });
+                },
+                items: <String>[
+                  "MODULO 01",
+                  "MODULO 02",
+                  "MODULO 03",
+                  "MODULO 04",
+                  "MODULO 05",
+                  "MODULO 06",
+                  "MODULO 07",
+                  "MODULO 08",
+                  "MODULO 09",
+                  "MODULO 10",
+                  "MODULO 11",
+                  "MODULO 12",
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                      value: value, child: Text(value));
+                }).toList(),
+              ),
+              const SizedBox(height: 12.0),
+              Row( children: <Widget>[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton(
+                    onPressed: () {
+
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      "Confirmar",
+                      style: TextStyle(
+                          fontWeight: FontWeight.w700, color: kPrimaryColor),
+                    ),
+                  ),
+                ),
+                SizedBox(width: size.width/4,),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      "Cancelar",
+                      style: TextStyle(
+                          fontWeight: FontWeight.w700, color: Colors.grey),
+                    ),
+                  ),
+                )
+              ]),
+
+            ],
+          ),
+        ),
+        Positioned(
+          top: 0,
+          left: size.width / 3.5,
+          //right: 16,
+          child: CircleAvatar(
+            backgroundColor: Colors.white,
+            radius: 50,
+            backgroundImage: AssetImage(widget.imagen!),
           ),
         )
       ],

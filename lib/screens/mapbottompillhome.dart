@@ -132,26 +132,22 @@ class MapBottomPillHomeState extends State<MapBottomPillHome> {
                                     estado == 0
                                         ? Text(
                                             placa == 'ADM'
-                                                ? "VIAJE SIN TERMINAR " +
-                                                    numeroViaje!
+                                                ? "VIAJE SIN TERMINAR ${numeroViaje!}"
                                                 : "VIAJE SIN TERMINAR",
                                             style: TextStyle(
                                                 color: Colors.grey[700],
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 15))
-                                        : Text("VIAJE " + numeroViaje!,
+                                        : Text("VIAJE ${numeroViaje!}",
                                             style: TextStyle(
                                                 color: Colors.grey[700],
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 15)),
                                     const SizedBox(height: 2),
-                                    Text('JABAS CARGADAS: ' +
-                                        cantjabas.toString()),
+                                    Text('JABAS CARGADAS: $cantjabas'),
                                     const SizedBox(height: 2),
                                     Text(
-                                        'T. de recorrido: ' +
-                                            tiempo.toString() +
-                                            tipo,
+                                        'T. de recorrido: $tiempo$tipo',
                                         style: const TextStyle(
                                             color: Colors.black, fontSize: 14))
                                   ],
@@ -202,18 +198,16 @@ class MapBottomPillHomeState extends State<MapBottomPillHome> {
                                             color: Colors.grey[700],
                                             fontWeight: FontWeight.bold,
                                             fontSize: 15))
-                                    : Text("VIAJE " + numeroViaje!,
+                                    : Text("VIAJE ${numeroViaje!}",
                                         style: TextStyle(
                                             color: Colors.grey[700],
                                             fontWeight: FontWeight.bold,
                                             fontSize: 15)),
                                 const SizedBox(height: 2),
-                                Text('JABAS: ' + cantjabas.toString()),
+                                Text('JABAS: $cantjabas'),
                                 const SizedBox(height: 2),
                                 Text(
-                                    'T. de recorrido: ' +
-                                        tiempo.toString() +
-                                        tipo,
+                                    'T. de recorrido: $tiempo$tipo',
                                     style: const TextStyle(
                                         color: Colors.black, fontSize: 14))
                               ],

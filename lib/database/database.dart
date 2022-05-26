@@ -53,6 +53,7 @@ class DatabaseProvider {
           "nacional integer,"
           "exportable integer,"
           "desmedro integer,"
+          "frutac integer,"
           "variedad varchar(100),"
           "condicion varchar(100),"
           "consumidor varchar(50),"
@@ -79,6 +80,7 @@ class DatabaseProvider {
 
       await db.execute("CREATE TABLE acopiosrestantes("
           "modulo varchar(10),"
+          "name varchar(100),"
           "alias varchar(100),"
           "latitud varchar(200),"
           "longitud varchar(200),"
@@ -361,7 +363,7 @@ class DatabaseProvider {
     return count;
   }
 
-  Future<int> insertAcopiosRestantes(String modulo, int cantidadjabas,String alias, String latitud, String longitud, String descripcion, int idlugar) async {
+  Future<int> insertAcopiosRestantes(String modulo, int cantidadjabas,String alias, String latitud, String longitud, String descripcion, int idlugar, String name) async {
     var db = await database;
     int count = 0;
     List<Map> queryList =
@@ -369,13 +371,13 @@ class DatabaseProvider {
     print('[ACOPIOS] getAcopioRestantes: ${queryList.length} acopiosrestantes');
     if (queryList.isNotEmpty) {
       count = await db.rawUpdate(
-          'UPDATE acopiosrestantes SET alias = ?, latitud = ?, longitud = ?, cantidadjabas = ?, descripcion = ?, idlugar = ? where modulo = ?',
-          [alias, latitud, longitud, cantidadjabas, descripcion, idlugar, modulo]);
+          'UPDATE acopiosrestantes SET alias = ?, name = ?, latitud = ?, longitud = ?, cantidadjabas = ?, descripcion = ?, idlugar = ? where modulo = ?',
+          [alias, name, latitud, longitud, cantidadjabas, descripcion, idlugar, modulo]);
       print('updated: $count');
     }else{
       count = await db.rawInsert(
-          'INSERT INTO acopiosrestantes(modulo,alias, latitud, longitud, cantidadjabas, descripcion, idlugar) values(?,?,?,?,?,?,?)',
-          [modulo,alias, latitud, longitud, cantidadjabas, descripcion, idlugar]);
+          'INSERT INTO acopiosrestantes(modulo,alias, name, latitud, longitud, cantidadjabas, descripcion, idlugar) values(?,?,?,?,?,?,?,?)',
+          [modulo,alias,name, latitud, longitud, cantidadjabas, descripcion, idlugar]);
       print('insertrestantes: $count');
     }
     return count;
@@ -454,13 +456,14 @@ class DatabaseProvider {
     var db = await database;
     List<AcopiosRestantes> acopiosRestantesList = [];
     List<Map> queryList = await db.rawQuery(
-        "select modulo,alias, cantidadjabas, latitud, longitud, descripcion, idlugar from acopiosrestantes where modulo = ?",
+        "select modulo,name,alias, cantidadjabas, latitud, longitud, descripcion, idlugar from acopiosrestantes where modulo = ?",
         [modulo]);
     //print('[DBAcopios] getAcopios: ${queryList.length} acopios');
     if (queryList.isNotEmpty) {
       for (int i = 0; i < queryList.length; i++) {
         acopiosRestantesList.add(AcopiosRestantes(
             modulo: queryList[i]['modulo'],
+            name: queryList[i]['name'],
             alias: queryList[i]['alias'],
             cantidadjabas: queryList[i]['cantidadjabas'],
             latitud: queryList[i]['latitud'],
@@ -496,6 +499,7 @@ class DatabaseProvider {
           exportable: queryList[i]['exportable'],
           nacional: queryList[i]['nacional'],
           desmedro: queryList[i]['desmedro'],
+          frutac: queryList[i]['frutac'],
           variedad: queryList[i]['variedad'],
           condicion: queryList[i]['condicion'],
           consumidor: queryList[i]['consumidor'],
@@ -515,9 +519,7 @@ class DatabaseProvider {
     var db = await database;
     List<Jabas> jabasList = [];
     List<Map> queryList = await db.rawQuery(
-        "select jabascargadas, idviaje, case when lat is null then '00.00000' else lat end as lat, case when long is null then '00.00000' else long end as long, alias, descripcion, fllegada, case when exportable is null then 0 else exportable end as exportable," +
-            "case when nacional is null then 0 else nacional end as nacional, case when desmedro is null then 0 else desmedro end as desmedro, case when variedad is null then '-' else variedad end as variedad, case when condicion is null then '-' else condicion end as condicion," +
-            "case when consumidor is null then '-' else consumidor end as consumidor, case when valvula is null then '-' else valvula end as valvula, case when observaciones is null then '-' else observaciones end as observaciones from jabas where estado = 0 and idviaje = ?",
+        "select jabascargadas, idviaje, case when lat is null then '00.00000' else lat end as lat, case when long is null then '00.00000' else long end as long, alias, descripcion, fllegada, case when exportable is null then 0 else exportable end as exportable,case when nacional is null then 0 else nacional end as nacional, case when desmedro is null then 0 else desmedro end as desmedro,case when frutac is null then 0 else frutac end as frutac, case when variedad is null then '-' else variedad end as variedad, case when condicion is null then '-' else condicion end as condicion,case when consumidor is null then '-' else consumidor end as consumidor, case when valvula is null then '-' else valvula end as valvula, case when observaciones is null then '-' else observaciones end as observaciones from jabas where estado = 0 and idviaje = ?",
         [idviaje]);
     print('[DBJabas] getJabas: ${queryList.length} jabas');
     if (queryList.isNotEmpty) {
@@ -533,6 +535,7 @@ class DatabaseProvider {
             exportable: queryList[i]['exportable'],
             nacional: queryList[i]['nacional'],
             desmedro: queryList[i]['desmedro'],
+            frutac: queryList[i]['frutac'],
             variedad: queryList[i]['variedad'],
             condicion: queryList[i]['condicion'],
             consumidor: queryList[i]['consumidor'],
@@ -552,9 +555,7 @@ class DatabaseProvider {
     var db = await database;
     List<Jabas> jabasList = [];
     List<Map> queryList = await db.rawQuery(
-        "select jabascargadas, idviaje, case when lat is null then '00.00000' else lat end as lat, case when long is null then '00.00000' else long end as long, alias, descripcion, fllegada, case when exportable is null then 0 else exportable end as exportable," +
-            "case when nacional is null then 0 else nacional end as nacional, case when desmedro is null then 0 else desmedro end as desmedro, case when variedad is null then '-' else variedad end as variedad, case when condicion is null then '-' else condicion end as condicion," +
-            "case when consumidor is null then '-' else consumidor end as consumidor, case when valvula is null then '-' else valvula end as valvula, case when observaciones is null then '-' else observaciones end as observaciones from jabas where estado = 1 and idviaje = ?",
+        "select jabascargadas, idviaje, case when lat is null then '00.00000' else lat end as lat, case when long is null then '00.00000' else long end as long, alias, descripcion, fllegada, case when exportable is null then 0 else exportable end as exportable,case when nacional is null then 0 else nacional end as nacional, case when desmedro is null then 0 else desmedro end as desmedro,case when frutac is null then 0 else frutac end as frutac, case when variedad is null then '-' else variedad end as variedad, case when condicion is null then '-' else condicion end as condicion,case when consumidor is null then '-' else consumidor end as consumidor, case when valvula is null then '-' else valvula end as valvula, case when observaciones is null then '-' else observaciones end as observaciones from jabas where estado = 1 and idviaje = ?",
         [idviaje]);
     print('[DBJabas] getJabas: ${queryList.length} jabas');
     if (queryList.isNotEmpty) {
@@ -570,6 +571,7 @@ class DatabaseProvider {
             exportable: queryList[i]['exportable'],
             nacional: queryList[i]['nacional'],
             desmedro: queryList[i]['desmedro'],
+            frutac: queryList[i]['frutac'],
             variedad: queryList[i]['variedad'],
             condicion: queryList[i]['condicion'],
             consumidor: queryList[i]['consumidor'],

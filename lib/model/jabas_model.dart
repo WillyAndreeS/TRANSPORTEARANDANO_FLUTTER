@@ -14,6 +14,7 @@ class Jabas {
   int? estado;
   int? jabascargadas;
   String? descripcion;
+  int? frutac;
   String? fllegada;
 
   Jabas(
@@ -32,6 +33,7 @@ class Jabas {
       this.estado,
       this.jabascargadas,
       this.descripcion,
+        this.frutac,
       this.fllegada});
 
   //To insert the data in the bd, we need to convert it into a Map
@@ -52,6 +54,7 @@ class Jabas {
         "estado": estado,
         "jabascargadas": jabascargadas,
         "descripcion": descripcion,
+        "frutac": frutac,
         "fllegada": fllegada
       };
 
@@ -73,5 +76,6 @@ class Jabas {
       estado: json["estado"],
       jabascargadas: json["jabascargadas"],
       descripcion: json["descripcion"],
+      frutac: json["frutac"],
       fllegada: json["fllegada"]);
 }

@@ -60,11 +60,11 @@ class MyBottomNavBar extends StatelessWidget {
                           'Selecciona el módulo en el que iniciarás el recojo de fruta',
                       imagen: "assets/images/distance.png"));
             },
+            backgroundColor: kPrimaryColor,
             child: const Icon(
               Icons.search,
               color: Colors.white,
             ),
-            backgroundColor: kPrimaryColor,
           ),
           IconButton(
             icon: const Icon(
@@ -139,29 +139,41 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                     ]),
                   )));
         });
-    print("MODULO ENVIADO: "+modulo);
+    print("MODULO ENVIADO: $modulo");
     var response = await http.get(
-        Uri.parse(url_base +
-            "WSPowerBI/controller/transportearandano.php?accion=puntoiniciomanual&modulo=" +
-            modulo),
+        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=puntoiniciomanual1&modulo=$modulo"),
         headers: {"Accept": "application/json"});
     setState(() {
       extraerData = json.decode(response.body);
       data = extraerData["datos"];
       dataacopio = json.encode(extraerData["datos"]);
-      print("ddata" + dataacopio.toString());
-      aliasinicial = data![0]["ALIAS"];
-      for (var i = 0; i < data!.length; i++) {
-        cantidad_jabas = int.parse(data![i]["CANTIDAD_JABAS"]);
-        latitudes = double.parse(data![i]["LATITUD"]);
-        longitudes = double.parse(data![i]["LONGITUD"]);
+      if(data!.isEmpty){
+        showDialog(
+            context: context,
+            builder: (context) =>
+            const CustomDialogsActividad(
+                title: "MENSAJE",
+                description:
+                'No hay acopios disponibles \n en este modulo',
+                imagen:
+                "assets/images/warning.png"));
+        Navigator.pop(context);
+      }else {
+        print("ddata$dataacopio");
+        aliasinicial = data![0]["ALIAS"];
+        for (var i = 0; i < data!.length; i++) {
+          cantidad_jabas = int.parse(data![i]["CANTIDAD_JABAS"]);
+          latitudes = double.parse(data![i]["LATITUD"]);
+          longitudes = double.parse(data![i]["LONGITUD"]);
 
-        if (total <= capacidadVehiculo && cantidad_jabas > 0) {
-          print("CANT JABAS" + cantidad_jabas.toString());
-          var objeto = {"ALIAS": data![i]["ALIAS"]};
-          total += cantidad_jabas;
-          ddData.add(objeto);
+          if (total <= capacidadVehiculo && cantidad_jabas > 0) {
+            print("CANT JABAS$cantidad_jabas");
+            var objeto = {"ALIAS": data![i]["ALIAS"]};
+            total += cantidad_jabas;
+            ddData.add(objeto);
+          }
         }
+        Navigator.pop(context);
       }
     });
     Navigator.pop(context);
@@ -169,11 +181,7 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
 
   Future<void> atualizarAcopios(String pacopios, int tipo) async {
     var response = await http.get(
-        Uri.parse(url_base +
-            "acp/index.php/transportearandano/setAcopios?accion=estado&alias=" +
-            pacopios +
-            "&tipo=" +
-            tipo.toString()),
+        Uri.parse("${url_base}acp/index.php/transportearandano/setAcopios?accion=estado&alias=$pacopios&tipo=$tipo"),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
@@ -287,11 +295,11 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                               offset: Offset(0.0, 10.0),
                             )
                           ]),
-                      child: FloatingActionButton(
+                      child: TextButton(
                           onPressed: () async {
                             String? actividad;
                             print(
-                                "VALOR DROPDOWN: " + dropdownValue.toString());
+                                "VALOR DROPDOWN: $dropdownValue");
                             // ignore: unnecessary_null_comparison
                             if (dropdownValue == null) {
                               showDialog(
@@ -310,8 +318,8 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                                 capacidad = (prefs.get("capacidad_vehiculo") ??
                                     "0") as int?;
                                 placa = (prefs.get("placa") ?? "0") as String?;
-                                print('placa: ' + placa.toString());
-                                print('idtransp: ' + idtransp.toString());
+                                print('placa: $placa');
+                                print('idtransp: $idtransp');
                               });
                               showDialog(
                                   context: context,
@@ -334,9 +342,7 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                                             )));
                                   });
                               var responsess = await http.get(
-                                  Uri.parse(url_base +
-                                      "WSPowerBI/controller/transportearandano.php?accion=estadoviaje&idtransp=" +
-                                      idtransp!),
+                                  Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=estadoviaje&idtransp=${idtransp!}"),
                                   headers: {"Accept": "application/json"});
                               if (mounted) {
                                 setState(() {
@@ -344,27 +350,46 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                                       json.decode(responsess.body);
                                   dataestado = extraerData["datos"];
                                   actividad = dataestado![0]["actividad"];
+
                                 });
                               }
                               print("ESTADO RUTEO: $actividad TRANSP. ${idtransp!}");
+
                               Navigator.pop(context);
                               if (actividad == "LIBRE") {
                                 moduloselect = dropdownValue.toString().substring(7);
                                 _guardarModulo(moduloselect!);
                                 await recibirDatos(moduloselect!
                                     );
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => GMap(
-                                        data: data!,
-                                        dataacopio: dataacopio,
-                                        latinicial: latitudes!,
-                                        longinicial: longitudes!,
-                                        aliasinicial: aliasinicial!,
-                                    moduloselect: moduloselect!),
-                                  ),
-                                );
+                                setState(() {
+                                print("ESTADO NULL: $data");
+                                if(data!.isEmpty) {
+                                    showDialog(
+                                    context: context,
+                                    builder: (context) =>
+                                    const CustomDialogsActividad(
+                                    title: "MENSAJE",
+                                    description:
+                                    'No hay acopios disponibles \n en este modulo',
+                                    imagen:
+                                    "assets/images/warning.png"));
+                                   // Navigator.pop(context);
+                                }else{
+                                    Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          GMap(
+                                              data: data!,
+                                              dataacopio: dataacopio,
+                                              latinicial: latitudes!,
+                                              longinicial: longitudes!,
+                                              aliasinicial: aliasinicial!,
+                                              moduloselect: moduloselect!),
+                                    ),
+                                  );
+                                }
+                                });
                               } else {
                                 showDialog(
                                     context: context,
@@ -401,7 +426,7 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                               offset: Offset(0.0, 10.0),
                             )
                           ]),
-                      child: FloatingActionButton(
+                      child: TextButton(
                           //color: kArandano,
                           onPressed: () {
                             for (var i = 0; i < ddData.length; i++) {
@@ -487,7 +512,7 @@ class CustomDialogsActividad extends StatelessWidget {
               const SizedBox(height: 12.0),
               Align(
                 alignment: Alignment.centerRight,
-                child: FloatingActionButton(
+                child: TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },

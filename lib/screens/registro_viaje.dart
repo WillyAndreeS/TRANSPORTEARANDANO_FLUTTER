@@ -67,34 +67,33 @@ class _RegistroViajeState extends State<RegistroViaje> {
   final myControllerOB = TextEditingController();
   final myControllerNA = TextEditingController();
   final myControllerDE = TextEditingController();
+  final myControllerFC = TextEditingController();
   bool isInitialized = false;
   final _formKey = GlobalKey<FormState>();
   final _formKey2 = GlobalKey<FormState>();
   final _formKey3 = GlobalKey<FormState>();
+  final _formKey4 = GlobalKey<FormState>();
   final _formKeys = GlobalKey<FormState>();
 
   Future<void> atualizarAcopios(String pacopios, int tipo) async {
     // print("ALIAS ESTADO: " + pacopios);
     var response = await http.get(
-        Uri.parse(url_base +
-            "acp/index.php/transportearandano/setAcopios?accion=estado&alias=" +
-            pacopios +
-            "&tipo=" +
-            tipo.toString()),
+        Uri.parse("${url_base}acp/index.php/transportearandano/setAcopios?accion=estado&alias=$pacopios&tipo=$tipo"),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
         var extraerData = json.decode(response.body);
         String result = extraerData["state"].toString();
-        print("RESULTADO: " + result.toString());
+        print("RESULTADO: $result");
       });
     }
   }
 
   Future<void> cargarVariedades(String cadenaconsumidor) async {
+
     var idac = cadenaconsumidor.split("|");
     var consumidor = idac[0];
-    print("CONS: " + consumidor);
+    print("CONS: $consumidor");
     DatabaseProvider.db
         .getVariedadWithIdConsumidor(consumidor)
         .then((List<Variedades> variedades) {
@@ -114,6 +113,7 @@ class _RegistroViajeState extends State<RegistroViaje> {
 
   Future<void> recibirDatosBarras(int idlugar) async {
     // ignore: prefer_typing_uninitialized_variables
+    databarras.clear();
     DatabaseProvider.db
         .getConsumidorWithIdLugar(idlugar)
         .then((List<Consumidores> consumidores) {
@@ -219,11 +219,14 @@ class _RegistroViajeState extends State<RegistroViaje> {
                                 shape: BoxShape.rectangle,
                                 borderRadius: BorderRadius.circular(50),
                               ),
-                              child: FloatingActionButton(
+                              child: TextButton(
                                   onPressed: () {
                                     print("IDACOPIO: " + widget.idacopio!);
-                                    recibirDatosBarras(
-                                        int.parse(widget.idacopio!));
+                                    //if(databarras.isNotEmpty){
+                                      recibirDatosBarras(
+                                          int.parse(widget.idacopio!));
+                                   // }
+
                                   },
                                   child: const Icon(Icons.swipe,
                                       color: Colors.white)),
@@ -279,7 +282,7 @@ class _RegistroViajeState extends State<RegistroViaje> {
                                 shape: BoxShape.rectangle,
                                 borderRadius: BorderRadius.circular(50),
                               ),
-                              child: FloatingActionButton(
+                              child: TextButton(
                                   onPressed: () {
                                     scanBarcode();
                                   },
@@ -397,7 +400,7 @@ class _RegistroViajeState extends State<RegistroViaje> {
                     ]),
                     const SizedBox(height: 15),
                     Row(children: <Widget>[
-                      const Text("DESMEDRO:     ",
+                      const Text("DESMEDRO:    ",
                           style: TextStyle(
                               fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(width: 10),
@@ -415,6 +418,49 @@ class _RegistroViajeState extends State<RegistroViaje> {
                               keyboardType: TextInputType.number,
                               cursorColor: kPrimaryColor,
                               controller: myControllerDE,
+                              decoration: InputDecoration(
+                                border: const OutlineInputBorder(),
+                                labelText: 'Cant. de jabas',
+                                labelStyle: const TextStyle(color: Colors.grey),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                  borderSide: const BorderSide(
+                                    color: kPrimaryColor,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                  borderSide: const BorderSide(
+                                    color: Colors.grey,
+                                    width: 2.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]),
+                    const SizedBox(height: 15),
+                    Row(children: <Widget>[
+                      const Text("FRUTA CAIDA:",
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        // ignore: avoid_unnecessary_containers
+                        child: Container(
+                          child: Form(
+                            key: _formKey4,
+                            child: TextFormField(
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Debe ingresar la cantidad de jabas';
+                                }
+                              },
+                              keyboardType: TextInputType.number,
+                              cursorColor: kPrimaryColor,
+                              controller: myControllerFC,
                               decoration: InputDecoration(
                                 border: const OutlineInputBorder(),
                                 labelText: 'Cant. de jabas',
@@ -747,7 +793,7 @@ class _RegistroViajeState extends State<RegistroViaje> {
                                     offset: Offset(0.0, 10.0),
                                   )
                                 ]),
-                            child: FloatingActionButton(
+                            child: TextButton(
                                 onPressed: () async {
                                   // if (_formKey.currentState.validate()) {
                                   if (_value == "Código de válvula") {
@@ -755,7 +801,7 @@ class _RegistroViajeState extends State<RegistroViaje> {
                                     _mensajesValidaciones(_mensaje!);
                                   } else {
                                     DateTime now = DateTime.now();
-                                    print("datetime: " + now.toString());
+                                    print("datetime: $now");
                                     var response = await DatabaseProvider.db
                                         .addJabasToDatabase(Jabas(
                                             idviaje:
@@ -784,6 +830,12 @@ class _RegistroViajeState extends State<RegistroViaje> {
                                                     ? 0
                                                     : int.parse(
                                                         myControllerDE.text),
+                                            frutac:
+                                            // ignore: prefer_if_null_operators, unnecessary_null_comparison
+                                            int.parse(myControllerFC.text) == null
+                                                ? 0
+                                                : int.parse(
+                                                myControllerFC.text),
                                             estado: 0,
                                             // ignore: unnecessary_null_comparison
                                             jabascargadas: 0,
@@ -815,21 +867,9 @@ class _RegistroViajeState extends State<RegistroViaje> {
                                             // ignore: prefer_if_null_operators
                                             descripcion: _value == null ? '' : _value,
                                             fllegada: now.toString()));
-                                    print("sincronización: " +
-                                        response.toString());
+                                    print("sincronización: $response");
                                     if (response > 0) {
                                       Navigator.pop(context);
-                                     /* Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => GMap(
-                                              nombre: 'USUARIO',
-                                              ruta: "-",
-                                              idviajes:
-                                                  int.parse(widget.idviajes!)),
-                                        ),
-                                      );*/
-                                      //dispose();
                                     } else {
                                       showDialog(
                                           context: context,
@@ -867,7 +907,7 @@ class _RegistroViajeState extends State<RegistroViaje> {
                                     offset: Offset(0.0, 10.0),
                                   )
                                 ]),
-                            child: FloatingActionButton(
+                            child: TextButton(
                                 //color: kArandano,
                                 onPressed: () {
                                   Navigator.pop(context);
@@ -915,11 +955,7 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
     String codigolugar = widget.idlugar ?? '0';
     var extraerData;
     var response = await http.get(
-        Uri.parse(url_base +
-            "WSPowerBI/controller/transportearandano.php?accion=detallebarras&idviajes=" +
-            codigoviajes +
-            "&idlugar=" +
-            codigolugar),
+        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=detallebarras&idviajes=$codigoviajes&idlugar=$codigolugar"),
         headers: {"Accept": "application/json"});
     setState(() {
       extraerData = json.decode(response.body);
@@ -1032,7 +1068,7 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                               offset: Offset(0.0, 10.0),
                             )
                           ]),
-                      child: FloatingActionButton(
+                      child: TextButton(
                           onPressed: () async {
                             print(
                                 "VALOR DROPDOWN: " + dropdownValue.toString());
@@ -1071,7 +1107,7 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                               offset: Offset(0.0, 10.0),
                             )
                           ]),
-                      child: FloatingActionButton(
+                      child: TextButton(
                           //color: kArandano,
                           onPressed: () {
                             Navigator.pop(context);
@@ -1154,7 +1190,7 @@ class CustomDialogsActividad extends StatelessWidget {
               const SizedBox(height: 12.0),
               Align(
                 alignment: Alignment.centerRight,
-                child: FloatingActionButton(
+                child: TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },

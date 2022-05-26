@@ -67,10 +67,7 @@ class _MyViajeDetailState extends State<MyViajeDetail> {
       print('IDS: ' + idtransp);
     });
     var response = await http.get(
-        Uri.parse(url_base +
-            "WSPowerBI/controller/transportearandano.php?accion=detalleviajes&idviajes=" +
-            widget.idviajes.toString() +
-            "&estado=1"),
+        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=detalleviajes&idviajes=${widget.idviajes}&estado=1"),
         headers: {"Accept": "application/json"});
     setState(() {
       var extraerData = json.decode(response.body);
@@ -94,9 +91,7 @@ class _MyViajeDetailState extends State<MyViajeDetail> {
 
   Future<void> recibirRutaReal() async {
     var response = await http.get(
-        Uri.parse(url_base +
-            "WSPowerBI/controller/transportearandano.php?accion=positionreal&idviajes=" +
-            widget.idviajes.toString()),
+        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=positionreal&idviajes=${widget.idviajes}"),
         headers: {"Accept": "application/json"});
     setState(() {
       var extraerData = json.decode(response.body);
@@ -121,11 +116,11 @@ class _MyViajeDetailState extends State<MyViajeDetail> {
 
   Future<void> recibirArcos() async {
     if (widget.ruta == '-') {
-      print("RUTA:" + widget.ruta!);
+      print("RUTA:${widget.ruta!}");
     } else {
       var extraerData = Map<String, dynamic>.from(json.decode(widget.ruta!));
       data1 = extraerData["datos"]["coordenadas"];
-      print("RESPUESTA RUTA: " + data1.toString());
+      print("RESPUESTA RUTA: $data1");
       List<LatLng> polylineLatLongs = [];
 
       for (var i = 0; i < data1!.length; i++) {
@@ -270,19 +265,19 @@ class _MyViajeDetailState extends State<MyViajeDetail> {
                           child: Container(
                             margin:
                                 const EdgeInsets.only(bottom: 20, right: 30),
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              child: Text(
-                                widget.cantjabas.toString() + " jabas",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
                             decoration: BoxDecoration(
                               color: kPanetone,
                               shape: BoxShape.rectangle,
                               borderRadius: BorderRadius.circular(50),
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Text(
+                                "${widget.cantjabas} jabas",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ),
                           onTap: () {},
@@ -292,10 +287,10 @@ class _MyViajeDetailState extends State<MyViajeDetail> {
                 floatingActionButtonLocation:
                     FloatingActionButtonLocation.startFloat,
                 floatingActionButton: FloatingActionButton(
-                  child: Image.asset('assets/images/arandano_blanco.png',
-                      width: 28, height: 28, fit: BoxFit.cover),
                   backgroundColor: kArandano,
                   onPressed: null,
+                  child: Image.asset('assets/images/arandano_blanco.png',
+                      width: 28, height: 28, fit: BoxFit.cover),
                 ),
               ),
             ),
@@ -323,6 +318,15 @@ class _MyViajeDetailState extends State<MyViajeDetail> {
                           return Container(
                             margin: const EdgeInsets.only(top: 15),
                             padding: const EdgeInsets.all(15),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(15),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.black.withOpacity(0.2),
+                                      blurRadius: 10,
+                                      offset: Offset.zero)
+                                ]),
                             child: Row(
                               children: [
                                 Stack(
@@ -367,15 +371,6 @@ class _MyViajeDetailState extends State<MyViajeDetail> {
                                 ),
                               ],
                             ),
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(15),
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
-                                      blurRadius: 10,
-                                      offset: Offset.zero)
-                                ]),
                           );
                         }
                       }

@@ -38,15 +38,13 @@ class MyStatelessWidgetState extends State<MyStatelessWidget> {
 
     if (placa != 'ADM') {
       var response = await http.get(
-          Uri.parse(url_base +
-              "WSPowerBI/controller/transportearandano.php?accion=viajes&idtransp=" +
-              idtransp.toString()),
+          Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=viajes&idtransp=$idtransp"),
           headers: {"Accept": "application/json"});
       setState(() {
         var extraerData = json.decode(response.body);
         data = extraerData["datos"];
       });
-      print("NAME: " + data.toString());
+      print("NAME: $data");
     } else {
       showDialog(
           context: context,
@@ -67,9 +65,7 @@ class MyStatelessWidgetState extends State<MyStatelessWidget> {
                     )));
           });
       var response = await http.get(
-          Uri.parse(url_base +
-              "WSPowerBI/controller/transportearandano.php?accion=viajestotal&nombre=" +
-              buscarTransp),
+          Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=viajestotal&nombre=$buscarTransp"),
           headers: {"Accept": "application/json"});
       setState(() {
         if (data != null) {
@@ -126,6 +122,7 @@ class MyStatelessWidgetState extends State<MyStatelessWidget> {
                         if (value!.isEmpty) {
                           return 'Debe ingresar el nombre del conductor';
                         }
+                        return null;
                       },
                       controller: mycontrollertransp,
                       onEditingComplete: recibirDatos,

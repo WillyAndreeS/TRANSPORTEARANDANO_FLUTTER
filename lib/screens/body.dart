@@ -32,7 +32,7 @@ class _BodyState extends State<Body> {
       name = (prefs.get("name") ?? "Usuario") as String;
       idtransp = (prefs.get("id") ?? "0") as String?;
       placa = (prefs.get("name") ?? "Usuario") as String?;
-      print('ID: ' + idtransp.toString());
+      print('ID: $idtransp');
     });
   }
 
@@ -66,17 +66,17 @@ class _BodyState extends State<Body> {
       String results;
       if (resulte.isNotEmpty && resulte[0].rawAddress.isNotEmpty) {
         var response = await http.post(
-            Uri.parse(url_base + "acp/index.php/transportearandano/setBackup"),
+            Uri.parse("${url_base}acp/index.php/transportearandano/setBackup"),
             body: {"backup": backup});
         //if (mounted) {
         setState(() {
           Navigator.pop(context);
           var extraerData = json.decode(response.body);
           results = extraerData["state"].toString();
-          print("STATE: " + results);
+          print("STATE: $results");
           if (results.toString().contains("true")) {
             print("backup subido correctamente");
-            Widget okButton = FloatingActionButton(
+            Widget okButton = TextButton(
               child: const Text("OK"),
               onPressed: () {
                 Navigator.pop(context);
@@ -393,7 +393,7 @@ class CustomDialogsLogout extends StatelessWidget {
                               offset: Offset(0.0, 10.0),
                             )
                           ]),
-                      child: FloatingActionButton(
+                      child: TextButton(
                           //color: kArandano,
                           onPressed: () {
                             //Navigator.pop(context);
@@ -426,7 +426,7 @@ class CustomDialogsLogout extends StatelessWidget {
                               offset: Offset(0.0, 10.0),
                             )
                           ]),
-                      child: FloatingActionButton(
+                      child: TextButton(
                           //color: kArandano,
                           onPressed: () {
                             Navigator.pop(context);

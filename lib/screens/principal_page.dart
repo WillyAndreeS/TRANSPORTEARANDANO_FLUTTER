@@ -104,9 +104,7 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         var response = await http.get(
-            Uri.parse(url_base +
-                "WSPowerBI/controller/transportearandano.php" +
-                "?accion=user"),
+            Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=user"),
             headers: {"Accept": "application/json"});
         if (mounted) {
           setState(() {
@@ -118,7 +116,7 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
       }
     } on SocketException catch (_) {
       codigoInternet = 0;
-      Widget okButton = FloatingActionButton(
+      Widget okButton = TextButton(
         child: const Text("OK"),
         onPressed: () {
           Navigator.pop(context);
@@ -158,9 +156,7 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
                   )));
         });
     var response = await http.get(
-        Uri.parse(url_base +
-            "WSPowerBI/controller/transportearandano.php" +
-            "?accion=detallebarrastotal"),
+        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=detallebarrastotal"),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
@@ -191,9 +187,7 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
                   )));
         });
     var response = await http.get(
-        Uri.parse(url_base +
-            "WSPowerBI/controller/transportearandano.php" +
-            "?accion=variedadtotal"),
+        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=variedadtotal"),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
@@ -210,13 +204,13 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
       String results;
       if (resulte.isNotEmpty && resulte[0].rawAddress.isNotEmpty) {
         var response = await http.post(
-            Uri.parse(url_base + "acp/index.php/transportearandano/setBackup"),
+            Uri.parse("${url_base}acp/index.php/transportearandano/setBackup"),
             body: {"backup": backup});
         //if (mounted) {
         setState(() {
           var extraerData = json.decode(response.body);
           results = extraerData["state"].toString();
-          print("STATE: " + results);
+          print("STATE: $results");
           if (results.toString().contains("true")) {
             print("backup subido correctamente");
           }
@@ -312,8 +306,8 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
                                             ]),
                                           )));
                                 });
-                            /*await DatabaseProvider.db
-                                .getDatabaseInstanaceDelete();*/
+                            await DatabaseProvider.db
+                                .getDatabaseInstanaceDelete();
                             /*var databasesPath = await getDatabasesPath();
                             String path =
                                 pat.join(databasesPath, 'transportes.db');
@@ -333,7 +327,7 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
                                 placa: data![i]['PLACA'],
                               ));
 
-                              print("sincronización: " + response.toString());
+                              print("sincronización: $response");
                             }
                             for (int i = 0; i < dataconsumidores!.length; i++) {
                               response = await DatabaseProvider.db
@@ -343,8 +337,7 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
                                 consumidor: dataconsumidores![i]["CONS"],
                               ));
 
-                              print("sincronización BARRAS: " +
-                                  response.toString());
+                              print("sincronización BARRAS: $response");
                             }
                             for (int i = 0; i < datavariedades!.length; i++) {
                               response = await DatabaseProvider.db
@@ -354,10 +347,10 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
                                 descripcion: datavariedades![i]["DESCRIPCION"],
                               ));
 
-                              print("sincronización: " + response.toString());
+                              print("sincronización: $response");
                             }
                             Navigator.pop(context);
-                            Widget okButton = FloatingActionButton(
+                            Widget okButton = TextButton(
                               child: const Text("OK"),
                               onPressed: () {
                                 estadoSincronizacion = 1;
@@ -374,7 +367,7 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
                                           actions: [okButton]));
                                 });
                           } else {
-                            Widget okButton = FloatingActionButton(
+                            Widget okButton = TextButton(
                               child: const Text("OK"),
                               onPressed: () {
                                 estadoSincronizacion = 0;
@@ -514,7 +507,7 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
                           '[LoginPage] _authenticateUser: Invalid credentials');
                     }
                   } else {
-                    Widget okButton = FloatingActionButton(
+                    Widget okButton = TextButton(
                       child: const Text("OK"),
                       onPressed: () {
                         estadoSincronizacion = 1;
@@ -602,6 +595,7 @@ class _PrimaryButtonIconState extends State<PrimaryButtonIcon> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: widget.press!,
       child: Container(
         decoration: BoxDecoration(
             color: Colors.teal[700], borderRadius: BorderRadius.circular(50)),
@@ -612,7 +606,6 @@ class _PrimaryButtonIconState extends State<PrimaryButtonIcon> {
         ),
         child: Center(child: Icon(widget.icon, size: 25, color: Colors.white)),
       ),
-      onTap: widget.press!,
     );
   }
 }
@@ -697,7 +690,7 @@ class CustomDialogsBuscar extends StatelessWidget {
                               offset: Offset(0.0, 10.0),
                             )
                           ]),
-                      child: FloatingActionButton(
+                      child: TextButton(
                           //color: kArandano,
                           onPressed: () {
                             Navigator.pop(context);
