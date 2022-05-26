@@ -2347,6 +2347,7 @@ class _CustomDialogsActividadState extends State<CustomDialogsActividad> {
                     ),
                   ),
                 ),
+
                 SizedBox(width: size.width/4),
                 Align(
                   alignment: Alignment.centerRight,
