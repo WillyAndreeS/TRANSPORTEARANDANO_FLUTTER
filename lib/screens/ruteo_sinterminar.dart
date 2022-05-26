@@ -2374,7 +2374,7 @@ class _CustomDialogsActividad2State extends State<CustomDialogsActividad2> {
                     ),
                   ),
                 ),
-                SizedBox(width: size.width/4,),
+                SizedBox(width: size.width/4),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
