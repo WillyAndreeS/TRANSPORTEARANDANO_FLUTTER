@@ -1803,7 +1803,7 @@ class _GMapState extends State<GMap> {
                                               description:
                                               'No hay acopios disponibles \n en este modulo',
                                               imagen:
-                                              "assets/images/warning.png"));
+                                              "assets/images/arandano_icon.png"));
                                     }),
                                       Text(
                                           '$jabasporlimpiar JABAS POR SUBIR', style: const TextStyle(
