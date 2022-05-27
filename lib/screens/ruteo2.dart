@@ -55,6 +55,7 @@ int jabasporlimpiars = 0;
 int? jabasporlimpiarfcs = 0;
 int? jabasporlimpiarns = 0;
 int? jabasporlimpiards = 0;
+String? modinicial;
 List? acopiosmapeados;
 var extraerDataAcopiosMapeados;
 double totalDistance = 0;
@@ -301,7 +302,7 @@ class _GMapState extends State<GMap> {
 
   Future<void> subirJabas() async {
     Timer.periodic(const Duration(minutes: 1), (Timer timer) async {
-       saveBoxAcopios(result, widget.moduloselect!,activaracopiosrestantes!);
+       saveBoxAcopios(result, modinicial!,activaracopiosrestantes!);
 
      // -------------------------- acopios mapeados------------------
 
@@ -405,7 +406,7 @@ class _GMapState extends State<GMap> {
       // -------------------------- acopios restantes------------------
       var cantidadrestada2 = 0;
       DatabaseProvider.db
-          .getCantidadAcopiosRestantes(widget.moduloselect!)
+          .getCantidadAcopiosRestantes(modinicial!)
           .then((List<AcopiosRestantes> acopiosrestantes) async {
 
         for (var i = 0; i < acopiosrestantes.length; i++) {
@@ -422,7 +423,7 @@ class _GMapState extends State<GMap> {
               _markers.removeWhere(
                       (m) => m.markerId.value == acopiosrestantes[i].alias!);
               var bitmapData;
-              if(acopiosrestantes[i].name! == '-') {
+              if(acopiosrestantes[i].name! == 'LIBRE') {
                 bitmapData = await _createAvatarBusqueda(
                     80,
                     90,
@@ -475,7 +476,7 @@ class _GMapState extends State<GMap> {
             } else {
               print("JABAS ACTUALES2: ${acopiosrestantes[i].cantidadjabas}");
               var bitmapData;
-              if(acopiosrestantes[i].name! == '-') {
+              if(acopiosrestantes[i].name! == 'LIBRE') {
                 bitmapData = await _createAvatarBusqueda(
                     80, 90, acopiosrestantes[i].cantidadjabas.toString());
               }else{
@@ -856,7 +857,7 @@ class _GMapState extends State<GMap> {
                   )));
         });
     var response1 = await http.get(
-        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=puntoiniciomanual&modulo=${widget.moduloselect!}"),
+        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=puntoiniciomanual&modulo=${modinicial!}"),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
@@ -877,7 +878,7 @@ class _GMapState extends State<GMap> {
               _markers.removeWhere(
                       (m) => m.markerId.value == datapunto![i]["ALIAS"]);
               var bitmapData;
-              if(datapunto![i]["NAME"] == "-"){
+              if(datapunto![i]["NAME"] == "LIBRE"){
                 print("HOLA NAME");
                 bitmapData = await _createAvatarBusqueda(
                     80, 90,
@@ -923,7 +924,7 @@ class _GMapState extends State<GMap> {
 
             } else {
               var bitmapData;
-              if(datapunto![i]["NAME"] == "-") {
+              if(datapunto![i]["NAME"] == "LIBRE") {
                 bitmapData =
                 await _createAvatarBusqueda(
                     80, 90, datapunto![i]["CANTIDAD_JABAS"]);
@@ -1098,7 +1099,7 @@ class _GMapState extends State<GMap> {
     var ddData = [];
     String actividad = "";
     var ddacopios = [];
-
+    modinicial = widget.moduloselect!;
     mediaIcon = await BitmapDescriptor.fromAssetImage(
         const ImageConfiguration(devicePixelRatio: 2),
         'assets/images/flages.png');
@@ -1855,7 +1856,7 @@ class _GMapState extends State<GMap> {
                                         CrossAxisAlignment.start,
                                     children: [
                                   InkWell(
-                                      child: Text("Arandano - Módulo ${moduloselect == null ? '-' : moduloselect!}",
+                                      child: Text("Arandano - Módulo ${modinicial == null ? '-' : modinicial!}",
                                           style: TextStyle(
                                               color: Colors.grey[700],
                                               fontWeight: FontWeight.bold,
@@ -2337,7 +2338,7 @@ class _CustomDialogsActividadState extends State<CustomDialogsActividad> {
                   alignment: Alignment.centerLeft,
                   child: TextButton(
                     onPressed: () {
-
+                      modinicial = dropdownValue.toString().substring(7);
                       Navigator.pop(context);
                     },
                     child: const Text(

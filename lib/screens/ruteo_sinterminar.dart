@@ -54,6 +54,7 @@ int? jabasporlimpiares = 0;
 int jabasporlimpiars = 0;
 int jabasporlimpiarfcs = 0;
 int? jabasporlimpiarns = 0;
+String? modinicial2;
 int? jabasporlimpiards = 0;
 var extraerDataAcopiosMapeados;
 double totalDistance = 0;
@@ -288,7 +289,7 @@ class _GMapState extends State<GMap> {
 
   Future<void> subirJabas() async {
     Timer.periodic(const Duration(minutes: 1), (Timer timer) async {
-      saveBoxAcopios(widget.idviajes.toString(), modulo!,activaracopiosrestantes2!);
+      saveBoxAcopios(widget.idviajes.toString(), modinicial2!,activaracopiosrestantes2!);
       // -------------------------- acopios mapeados------------------
       var cantidadrestada = 0;
       DatabaseProvider.db
@@ -389,7 +390,7 @@ class _GMapState extends State<GMap> {
       // -------------------------- acopios restantes------------------
       var cantidadrestada2 = 0;
       DatabaseProvider.db
-          .getCantidadAcopiosRestantes(modulo!)
+          .getCantidadAcopiosRestantes(modinicial2!)
           .then((List<AcopiosRestantes> acopiosrestantes) async {
 
         for (var i = 0; i < acopiosrestantes.length; i++) {
@@ -406,7 +407,7 @@ class _GMapState extends State<GMap> {
               _markers.removeWhere(
                       (m) => m.markerId.value == acopiosrestantes[i].alias!);
               var bitmapData;
-              if(acopiosrestantes[i].name! == '-'){
+              if(acopiosrestantes[i].name! == 'LIBRE'){
                 bitmapData = await _createAvatarBusqueda(
                     80,
                     90,
@@ -459,8 +460,14 @@ class _GMapState extends State<GMap> {
               }
             } else {
               print("JABAS ACTUALES2: ${acopiosrestantes[i].cantidadjabas}");
-              var bitmapData = await _createAvatarRestantes(
-                  80, 90, acopiosrestantes[i].cantidadjabas.toString());
+              var bitmapData;
+              if(acopiosrestantes[i].name! == 'LIBRE') {
+                bitmapData = await _createAvatarBusqueda(
+                    80, 90, acopiosrestantes[i].cantidadjabas.toString());
+              }else{
+                bitmapData = await _createAvatarRestantes(
+                    80, 90, acopiosrestantes[i].cantidadjabas.toString());
+              }
               var bitmapDescriptor = BitmapDescriptor.fromBytes(bitmapData);
               _markers.removeWhere(
                       (m) => m.markerId.value == acopiosrestantes[i].alias!);
@@ -897,7 +904,7 @@ class _GMapState extends State<GMap> {
                   )));
         });
     var response1 = await http.get(
-        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=puntoiniciomanual&modulo=${modulo!}"),
+        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=puntoiniciomanual&modulo=${modinicial2!}"),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
@@ -921,7 +928,7 @@ class _GMapState extends State<GMap> {
           _markers.removeWhere(
                   (m) => m.markerId.value == datapunto![i]["ALIAS"]);
           var bitmapData;
-          if(datapunto![i]["NAME"] == "-"){
+          if(datapunto![i]["NAME"] == "LIBRE"){
             bitmapData = await _createAvatarBusqueda(
                 80, 90,
                 (cantidadJabasRestantes - cantidadrestada).toString());
@@ -964,7 +971,7 @@ class _GMapState extends State<GMap> {
           }
         } else {
           var bitmapData;
-          if (datapunto![i]["NAME"] == "-") {
+          if (datapunto![i]["NAME"] == "LIBRE") {
             bitmapData = await _createAvatarBusqueda(
                 80, 90, datapunto![i]["CANTIDAD_JABAS"]);
           } else {
@@ -1085,6 +1092,7 @@ class _GMapState extends State<GMap> {
 
 
   Future<void> recibirDatos() async {
+    modinicial2 = modulo!;
     mediaIcon = await BitmapDescriptor.fromAssetImage(
         const ImageConfiguration(devicePixelRatio: 2),
         'assets/images/flages.png');
@@ -1789,7 +1797,7 @@ class _GMapState extends State<GMap> {
                                         CrossAxisAlignment.start,
                                     children: [
                                   InkWell(
-                                  child: Text("Arandano - Módulo ${modulo == null ? '-' : modulo!}",
+                                  child: Text("Arandano - Módulo ${modinicial2 == null ? '-' : modinicial2!}",
                                       style: TextStyle(
                                           color: Colors.grey[700],
                                           fontWeight: FontWeight.bold,
@@ -2364,7 +2372,7 @@ class _CustomDialogsActividad2State extends State<CustomDialogsActividad2> {
                   alignment: Alignment.centerLeft,
                   child: TextButton(
                     onPressed: () {
-
+                      modinicial2 = dropdownValue.toString().substring(7);
                       Navigator.pop(context);
                     },
                     child: const Text(
