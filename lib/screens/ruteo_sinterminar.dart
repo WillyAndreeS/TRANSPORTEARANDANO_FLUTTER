@@ -234,7 +234,7 @@ class _GMapState extends State<GMap> {
   PinInformation? sourcePinInfo;
   PinInformation? destinationPinInfo;
 
-  _estadoVehiculo() async {
+  Future<void> _estadoVehiculo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       capacidad = (prefs.get("capacidad_vehiculo") ?? "0") as int?;
@@ -1092,7 +1092,7 @@ class _GMapState extends State<GMap> {
 
 
   Future<void> recibirDatos() async {
-    modinicial2 = modulo!;
+
     mediaIcon = await BitmapDescriptor.fromAssetImage(
         const ImageConfiguration(devicePixelRatio: 2),
         'assets/images/flages.png');
@@ -1127,6 +1127,7 @@ class _GMapState extends State<GMap> {
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
+        modinicial2 = modulo!;
         //  await Future.delayed(Duration(seconds: 2));
         extraerDataAcopiosMapeados = json.decode(response.body);
         acopiosmapeados = extraerDataAcopiosMapeados["datos"];
@@ -2074,8 +2075,8 @@ class _GMapState extends State<GMap> {
                             currentLocationes!.longitude);
                         var placeDistance = totalDistance * 1000;
                         print("DISTANCIA DEL PUNTO INICIAL: ${placeDistance.toStringAsFixed(2)}");
-                        /*  if (double.parse(_placeDistance.toStringAsFixed(2)) <=
-                            50) {*/
+                          if (double.parse(placeDistance.toStringAsFixed(2)) <=
+                            50) {
                         Widget okButton = TextButton(
                             child: const Text("CONFIRMAR"),
                             onPressed: () async {
@@ -2167,6 +2168,21 @@ class _GMapState extends State<GMap> {
                                       "¿Estas seguro de terminar el viaje?"),
                                   actions: [okButton, cancelButton],
                                 ));
+                          } else {
+                            Widget cancelButton = TextButton(
+                              child: const Text("CANCELAR"),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            );
+                            showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  content: const Text(
+                                      "No puedes cerrar el viaje en este punto"),
+                                  actions: [cancelButton],
+                                ));
+                          }
                       },
                     ),
                   ],

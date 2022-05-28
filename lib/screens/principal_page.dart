@@ -306,8 +306,8 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
                                             ]),
                                           )));
                                 });
-                            await DatabaseProvider.db
-                                .getDatabaseInstanaceDelete();
+                            /*await DatabaseProvider.db
+                                .getDatabaseInstanaceDelete();*/
                             /*var databasesPath = await getDatabasesPath();
                             String path =
                                 pat.join(databasesPath, 'transportes.db');
