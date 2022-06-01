@@ -2117,7 +2117,7 @@ class _GMapState extends State<GMap> {
                         print("DISTANCIA DEL PUNTO INICIAL: ${placeDistance.toStringAsFixed(2)}");
 
                         if (double.parse(placeDistance.toStringAsFixed(2)) <=
-                            50) {
+                            500) {
                           Widget okButton = TextButton(
                             child: const Text("CONFIRMAR"),
                             onPressed: () async {
