@@ -1156,24 +1156,27 @@ class _GMapState extends State<GMap> {
                     double.parse(widget.data![i]["LONGITUD"])),
                 icon: bitmapDescriptor,
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RegistroViaje(
-                        title: "NOTA DE TRASLADO",
-                        description: widget.data![i]["DESCRIPCION"],
-                        imagen: "assets/images/ar andano_icon.png",
-                        cantidad: widget.data![i]["CANTIDAD_JABAS"],
-                        alias: widget.data![i]["ALIAS"],
-                        latitud: widget.data![i]["LATITUD"],
-                        longitud: widget.data![i]["LONGITUD"],
-                        idacopio: widget.data![i]["IDACOPIO"],
-                        // area: data[i]["AREA"],
-                        idviajes: result,
-                        tipoacopio: '-',
+                  setState((){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RegistroViaje(
+                          title: "NOTA DE TRASLADO",
+                          description: widget.data![i]["DESCRIPCION"],
+                          imagen: "assets/images/ar andano_icon.png",
+                          cantidad: widget.data![i]["CANTIDAD_JABAS"],
+                          alias: widget.data![i]["ALIAS"],
+                          latitud: widget.data![i]["LATITUD"],
+                          longitud: widget.data![i]["LONGITUD"],
+                          idacopio: widget.data![i]["IDACOPIO"],
+                          // area: data[i]["AREA"],
+                          idviajes: result,
+                          tipoacopio: '-',
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                  });
+
                 }),
           );
           total += cantidad_jabas!;
@@ -1196,28 +1199,30 @@ class _GMapState extends State<GMap> {
           }
         }
       }
-      for (var i = 0; i < ddacopios.length; i++) {
-        var responsedetail = await http.get(
-            Uri.parse("${"${url_base +
-                "acp/index.php/transportearandano/setViajeDetail?accion=viajedetail&idviajes=" +
-                result +
-                "&alias=" +
-                ddacopios[i]["ALIAS"] +
-                "&latitud=" +
-                ddacopios[i]["LATITUD"] +
-                "&longitud=" +
-                ddacopios[i]["LONGITUD"]}&cantjabas=" +
-                ddacopios[i]["CANTIDAD_JABAS"]}&jabascargadas=0"),
-            headers: {"Accept": "application/json"});
-        if (mounted) {
-          setState(() {
-            var extraerData = json.decode(responsedetail.body);
-            resultdetail = extraerData["state"];
-            print("RESULTADO DE DETALLE: $resultdetail");
-          });
+
+        for (var i = 0; i < ddacopios.length; i++) {
+          var responsedetail = await http.get(
+              Uri.parse("${"${url_base +
+                  "acp/index.php/transportearandano/setViajeDetail?accion=viajedetail&idviajes=" +
+                  result +
+                  "&alias=" +
+                  ddacopios[i]["ALIAS"] +
+                  "&latitud=" +
+                  ddacopios[i]["LATITUD"] +
+                  "&longitud=" +
+                  ddacopios[i]["LONGITUD"]}&cantjabas=" +
+                  ddacopios[i]["CANTIDAD_JABAS"]}&jabascargadas=0"),
+              headers: {"Accept": "application/json"});
+          if (mounted) {
+            setState(() {
+              var extraerData = json.decode(responsedetail.body);
+              resultdetail = extraerData["state"];
+              print("RESULTADO DE DETALLE: $resultdetail");
+            });
+          }
+          atualizarAcopios(ddacopios[i]["ALIAS"], 0);
         }
-        atualizarAcopios(ddacopios[i]["ALIAS"], 0);
-      }
+
 
       var inicio = widget.aliasinicial;
       var fin = json.encode(ddData);
