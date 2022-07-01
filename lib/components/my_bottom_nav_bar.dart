@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transporte_arandanov2/screens/ruteo2.dart';
+import 'package:transporte_arandanov2/screens/ruteo_jaba.dart';
 import 'package:transporte_arandanov2/screens/second_page.dart';
 import '../constants.dart';
 
@@ -51,18 +52,31 @@ class MyBottomNavBar extends StatelessWidget {
             },
           ),
           FloatingActionButton(
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (context) => const CustomDialogsBuscar(
-                      title: "GENERAR RUTA",
-                      description:
-                          'Selecciona el módulo en el que iniciarás el recojo de fruta',
-                      imagen: "assets/images/distance.png"));
+            onPressed: () async{
+              SharedPreferences prefs =
+                  await SharedPreferences.getInstance();
+                  String placageneral = (prefs.get("placa") ?? "0") as String;
+                  if(placageneral.contains("ADM")){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>  GMapJabas(),
+                      ),
+                    );
+                  }else{
+                    showDialog(
+                        context: context,
+                        builder: (context) => const CustomDialogsBuscar(
+                            title: "GENERAR RUTA",
+                            description:
+                            'Selecciona el módulo en el que iniciarás el recojo de fruta',
+                            imagen: "assets/images/distance.png"));
+                  }
             },
             backgroundColor: kPrimaryColor,
-            child: const Icon(
-              Icons.search,
+            child:  Icon(
+              (placa.toString() ?? '-').contains('ADM') ?
+              Icons.map : Icons.search,
               color: Colors.white,
             ),
           ),

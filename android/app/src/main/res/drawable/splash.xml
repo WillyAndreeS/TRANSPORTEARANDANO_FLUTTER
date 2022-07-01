@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/ly_logos"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <ImageView
+        android:layout_gravity="center"
+        android:adjustViewBounds="true"
+        android:id="@+id/logo_splash"
+        android:src="@drawable/logo_gcp"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content" />
+
+    </LinearLayout>
+</RelativeLayout>
