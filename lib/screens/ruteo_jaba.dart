@@ -125,6 +125,9 @@ class _GMapJabasState extends State<GMapJabas> {
       locationName: '',
       labelColor: Colors.grey);
   PinInformation? sourcePinInfo;
+  String? jabaspedateadas = '0';
+  String? jabasdisponibles = '0';
+  String? jabasrecogidas = '0';
   PinInformation? destinationPinInfo;
   FlutterIsolate? isolate2;
 
@@ -146,6 +149,7 @@ class _GMapJabasState extends State<GMapJabas> {
     setInitialLocation();
     recibirAcopios();
     CargarJabas();
+    cargarCantidades();
   }
 
   void saveBoxAcopios() async {
@@ -366,6 +370,7 @@ class _GMapJabasState extends State<GMapJabas> {
               }
         }
       });
+      cargarCantidades();
 // ------------------------------------------
 
     });
@@ -591,8 +596,7 @@ class _GMapJabasState extends State<GMapJabas> {
   }
 
   Future<void> cargarCantidades() async {
-
-
+    var datajabas;
      showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -607,21 +611,23 @@ class _GMapJabasState extends State<GMapJabas> {
                     child: Column(children:  const <Widget>[
                       CircularProgressIndicator(),
                       SizedBox(height: 5),
-                      Text("Verificando acopios extra")
+                      Text("Verificando jabas")
                     ]),
                   )));
         });
     var response1 = await http.get(
         Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=totalizadojabas"),
         headers: {"Accept": "application/json"});
-    //if (mounted) {
+    if (mounted) {
     setState(() {
       extraerData1 = json.decode(response1.body);
-      print("PRUEBAAAA: ----"+extraerData1.toString());
-      datapunto = extraerData1["datos"];
-
+      print("PRUEBA JABAS: ----"+extraerData1.toString());
+      datajabas = extraerData1["datos"];
+      jabaspedateadas = datajabas![0]["TOTALPEDATEADO"];
+      jabasdisponibles = datajabas![0]["CANTIDAD_JABAS"];
+      jabasrecogidas = datajabas![0]["CANTIDAD_RECOGIDAS"];
     });
-    // }
+     }
 
      Navigator.pop(context);
 
@@ -1040,6 +1046,41 @@ class _GMapJabasState extends State<GMapJabas> {
                   ),
                   onTap: () async {
                     _markers.removeWhere((m) => m.markerId.value != '');
+                    cargarCantidades();
+                    recibirAcopios();
+                    print('si actualiza');
+                  },
+                ),
+                const SizedBox(height: 10,),
+                GestureDetector(
+                  child: Container(
+
+                    margin: const EdgeInsets.only(top: 10, right: 10),
+                    child: ClipOval(
+                        child: Container(
+                            color: kPanetone,
+                            //margin: EdgeInsets.only(top: 45),
+                            padding: const EdgeInsets.all(5),
+                            child: const Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 32,
+                            ))),
+                    decoration: BoxDecoration(
+                        color: kArandano,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.circular(50),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 10.0,
+                            offset: Offset(0.0, 10.0),
+                          )
+                        ]),
+                  ),
+                  onTap: () async {
+                    _markers.removeWhere((m) => m.markerId.value != '');
+                    cargarCantidades();
                     recibirAcopios();
                     print('si actualiza');
                   },
@@ -1076,19 +1117,29 @@ class _GMapJabasState extends State<GMapJabas> {
                     print('si actualiza');
                   },
                 ),
-                const SizedBox(height: 10,),
+
+              ],
+            )),
+        Positioned(
+
+            bottom: 10,
+            right: 5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+
                 GestureDetector(
                   child: Container(
                     margin: const EdgeInsets.only(top: 10, right: 10),
                     child: ClipOval(
                         child: Container(
-                            color: kArandano,
+                            color: kAccentColor,
                             //margin: EdgeInsets.only(top: 45),
                             padding: const EdgeInsets.all(15),
-                            child: const Text("JBS. CARG.", style: TextStyle(color: Colors.white)
+                            child: Text(jabaspedateadas!  + " JBS. COS.", style: TextStyle(color: Colors.white)
                             ))),
                     decoration: BoxDecoration(
-                        color: kArandano,
+                        color: kAccentColor,
                         shape: BoxShape.rectangle,
                         borderRadius: BorderRadius.circular(50),
                         boxShadow: const [
@@ -1100,9 +1151,6 @@ class _GMapJabasState extends State<GMapJabas> {
                         ]),
                   ),
                   onTap: () async {
-                    _markers.removeWhere((m) => m.markerId.value != '');
-                    recibirAcopios();
-                    print('si actualiza');
                   },
                 ),
                 const SizedBox(height: 10,),
@@ -1114,7 +1162,7 @@ class _GMapJabasState extends State<GMapJabas> {
                             color: kPrimaryColor,
                             //margin: EdgeInsets.only(top: 45),
                             padding: const EdgeInsets.all(15),
-                            child: const Text("JBS. DISP.", style: TextStyle(color: Colors.white)
+                            child: Text(jabasrecogidas!  + " JBS. REC.", style: TextStyle(color: Colors.white)
                             ))),
                     decoration: BoxDecoration(
                         color: kPrimaryColor,
@@ -1129,9 +1177,32 @@ class _GMapJabasState extends State<GMapJabas> {
                         ]),
                   ),
                   onTap: () async {
-                    _markers.removeWhere((m) => m.markerId.value != '');
-                    recibirAcopios();
-                    print('si actualiza');
+                  },
+                ),
+                const SizedBox(height: 10,),
+                GestureDetector(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 10, right: 10),
+                    child: ClipOval(
+                        child: Container(
+                            color: Colors.red,
+                            //margin: EdgeInsets.only(top: 45),
+                            padding: const EdgeInsets.all(15),
+                            child: Text(jabasdisponibles! +" JBS. DISP.", style: TextStyle(color: Colors.white)
+                            ))),
+                    decoration: BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.circular(50),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 10.0,
+                            offset: Offset(0.0, 10.0),
+                          )
+                        ]),
+                  ),
+                  onTap: () async {
                   },
                 ),
               ],

@@ -612,9 +612,75 @@ class _GMapState extends State<GMap> {
       } on Exception catch (e) {
         print('Error causador por: $e');
       }
+      //cerrarViaje();
     });
   }
 
+  Future<void> cerrarViaje() async{
+
+    totalDistance = _coordinateDistance(
+        -6.79141, -79.83551,
+        currentLocationes!.latitude,
+        currentLocationes!.longitude);
+    var placeDistance = totalDistance * 1000;
+    print("DISTANCIA DEL PUNTO INICIAL: ${placeDistance.toStringAsFixed(2)}");
+
+    if (double.parse(placeDistance.toStringAsFixed(2)) <=
+        500) {
+      String codigov = result.toString() ?? '0';
+      var response = await http.get(
+          Uri.parse("${url_base}acp/index.php/transportearandano/setTravelUpdate?accion=estadoViaje&idviajes=$codigov&tipo=1"),
+          headers: {"Accept": "application/json"});
+    //  if (mounted) {
+        setState(() {
+          var extraerData = json.decode(response.body);
+          String results =
+          extraerData["state"].toString();
+          print("RESULTADO ESTADO VIAJE: $results");
+          if (results == "true") {
+            jabas_moment = 0;
+            StringBuffer xmlViajesAcopio =
+            StringBuffer();
+
+            String cabeceraXml =
+                "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><SOLICITUD_DESTINO>";
+            String itemXml = "";
+            DatabaseProvider.db
+                .getJabasWithoutAlias(
+                int.parse(codigov))
+                .then((List<Jabas> jabas) {
+              if (jabas.isNotEmpty) {
+                for (var i = 0; i < jabas.length; i++) {
+                  itemXml += "<Item IDVIAJES=\"${jabas[i].idviaje}\" LATITUD=\"${jabas[i].lat!}\" LONGITUD=\"${jabas[i].long!}\" ALIAS=\"${jabas[i].alias!}\" CANTJABAS=\"${jabas[i]
+                      .jabascargadas}\" ESTADO=\"1\" DESCRIPCION=\"${jabas[i].descripcion!}\" JABASCARGADAS=\"${jabas[i]
+                      .jabascargadas}\" FLLEGADA=\"${jabas[i].fllegada!}\" EXPORTABLE=\"${jabas[i].exportable}\" NACIONAL=\"${jabas[i].nacional}\" DESMEDRO=\"${jabas[i].desmedro}\" FRUTAC=\"${jabas[i].frutac}\" VARIEDAD=\"${jabas[i].variedad}\" CONDICION=\"${jabas[i].condicion}\" CONSUMIDOR=\"${jabas[i].consumidor}\" VALVULA=\"${jabas[i].valvula}\" OBSERVACIONES=\"${jabas[i]
+                      .observaciones}\" />";
+                  DatabaseProvider.db.updateJabasViaje(
+                      jabas[i].idviaje!,
+                      jabas[i].alias!);
+                }
+              }
+              String pieXml = "</SOLICITUD_DESTINO>";
+              String xml2 =
+                  cabeceraXml + itemXml + pieXml;
+              xmlViajesAcopio.write(xml2);
+              guardarAcopios(
+                  xmlViajesAcopio.toString());
+            });
+            reiniciarAcopios();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                const SecondPage(),
+              ),
+            );
+          }
+        });
+    //  }
+
+    }
+  }
   Future<void> subirJabasManual() async {
      try {
 
@@ -804,6 +870,7 @@ class _GMapState extends State<GMap> {
           },
           position: pinPosition, // updated position
           icon: sourceIcones!));
+
     });
   }
 
@@ -2146,8 +2213,8 @@ class _GMapState extends State<GMap> {
                                             )));
                                   });
                               estadoinsert = "terminado";
-                              _obtenerCodigoVehiculo();
-                              String codigov = codigoviaje ?? '0';
+                              //_obtenerCodigoVehiculo();
+                              String codigov = result.toString() ?? '0';
                               var response = await http.get(
                                   Uri.parse("${url_base}acp/index.php/transportearandano/setTravelUpdate?accion=estadoViaje&idviajes=$codigov&tipo=1"),
                                   headers: {"Accept": "application/json"});

@@ -138,8 +138,6 @@ class _RegistroViajeState extends State<RegistroViaje> {
       isInitialized = true;
     });
     super.initState();
-    //cargarVariedades("");
-    //recibirDatosBarras();
   }
 
   Future _mensajesValidaciones(String sms) async {
