@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:transporte_arandanov2/constants.dart';
 import 'package:transporte_arandanov2/screens/ruteo_sinterminar.dart';
+import 'package:transporte_arandanov2/screens/second_page.dart';
 import 'package:transporte_arandanov2/screens/viaje_detalle.dart';
+import 'package:http/http.dart' as http;
 
 // ignore: must_be_immutable
 class MapBottomPillHome extends StatefulWidget {
@@ -132,8 +136,8 @@ class MapBottomPillHomeState extends State<MapBottomPillHome> {
                                     estado == 0
                                         ? Text(
                                             placa == 'ADM'
-                                                ? "VIAJE SIN TERMINAR ${numeroViaje!}"
-                                                : "VIAJE SIN TERMINAR",
+                                                ? "VIAJE ST ${numeroViaje!}"
+                                                : "VIAJE ST ${numeroViaje!}",
                                             style: TextStyle(
                                                 color: Colors.grey[700],
                                                 fontWeight: FontWeight.bold,
@@ -193,7 +197,7 @@ class MapBottomPillHomeState extends State<MapBottomPillHome> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 estado == 0
-                                    ? Text("VIAJE SIN TERMINAR",
+                                    ? Text("VIAJE ST ${numeroViaje!}",
                                         style: TextStyle(
                                             color: Colors.grey[700],
                                             fontWeight: FontWeight.bold,
@@ -216,7 +220,7 @@ class MapBottomPillHomeState extends State<MapBottomPillHome> {
                           Column(
                             children: <Widget>[
                               IconButton(
-                                padding: const EdgeInsets.all(3),
+                               // padding: const EdgeInsets.all(2),
                                 icon: const Icon(Icons.location_pin,
                                     color: Colors.white, size: 30),
                                 onPressed: () {
@@ -232,7 +236,7 @@ class MapBottomPillHomeState extends State<MapBottomPillHome> {
                                 },
                               ),
                               IconButton(
-                                padding: const EdgeInsets.all(3),
+                               // padding: const EdgeInsets.all(2),
                                 icon: const Icon(Icons.history,
                                     color: Colors.white, size: 30),
                                 onPressed: () {
@@ -250,7 +254,33 @@ class MapBottomPillHomeState extends State<MapBottomPillHome> {
                                     ),
                                   );
                                 },
-                              )
+                              ),
+                              placa == 'ADM' ?
+                              IconButton(
+                                //padding: const EdgeInsets.all(2),
+                                icon: const Icon(Icons.close,
+                                    color: Colors.white, size: 30),
+                                onPressed: () async{
+                                    var response = await http.get(
+                                    Uri.parse("${url_base}acp/index.php/transportearandano/setTravelUpdate?accion=estadoViaje&idviajes=$idviajes&tipo=1"),
+                                    headers: {"Accept": "application/json"});
+                                    //  if (mounted) {
+                                    setState(() {
+                                      var extraerData = json.decode(response.body);
+                                      String results =
+                                      extraerData["state"].toString();
+                                      print("RESULTADO ESTADO VIAJE: $results");
+                                      if (results == "true") {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => const SecondPage(),
+                                          ),
+                                        );
+                                      }
+                                    });
+                                },
+                              ): Container(),
                             ],
                           )
                         ],

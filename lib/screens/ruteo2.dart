@@ -2181,15 +2181,15 @@ class _GMapState extends State<GMap> {
                                 child: CircularProgressIndicator(),
                               );
                             });
-                        totalDistance = _coordinateDistance(
+                      /*  totalDistance = _coordinateDistance(
                             -7.067140, -79.558578,
                             currentLocationes!.latitude,
                             currentLocationes!.longitude);
                         var placeDistance = totalDistance * 1000;
-                        print("DISTANCIA DEL PUNTO INICIAL: ${placeDistance.toStringAsFixed(2)}");
+                        print("DISTANCIA DEL PUNTO INICIAL: ${placeDistance.toStringAsFixed(2)}");*/
 
-                        if (double.parse(placeDistance.toStringAsFixed(2)) <=
-                            500) {
+                       /* if (double.parse(placeDistance.toStringAsFixed(2)) <=
+                            500) {*/
                           Widget okButton = TextButton(
                             child: const Text("CONFIRMAR"),
                             onPressed: () async {
@@ -2256,7 +2256,7 @@ class _GMapState extends State<GMap> {
                                       print("XML2: $xmlViajesAcopio");
                                     });
                                     reiniciarAcopios();
-                                    Navigator.pop(context);
+                                  //  Navigator.pop(context);
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -2282,7 +2282,7 @@ class _GMapState extends State<GMap> {
                                         "¿Estas seguro de terminar el viaje?"),
                                     actions: [okButton, cancelButton],
                                   ));
-                        } else {
+                       /* } else {
                           Widget cancelButton = TextButton(
                             child: const Text("CANCELAR"),
                             onPressed: () {
@@ -2296,7 +2296,7 @@ class _GMapState extends State<GMap> {
                                         "No puedes cerrar el viaje en este punto"),
                                     actions: [cancelButton],
                                   ));
-                        }
+                        }*/
                       },
                     ),
                   ],

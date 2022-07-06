@@ -34,6 +34,9 @@ Set<Marker> _markers = HashSet<Marker>();
 int? cantidad_jabas;
 //int capacidad = 500;
 int? cantidad_jabas_actual;
+String? jabasrecogidas2 = '0';
+String? jabascosechadas = '0';
+String? modulojabas = '0';
 var extraerData1;
 List? datapunto;
 
@@ -101,6 +104,7 @@ class _GMapJabasState extends State<GMapJabas> {
   BitmapDescriptor? _markerIcon2;
   List? data1;
   List? areas;
+
   var result;
   double? distancia;
 
@@ -184,6 +188,8 @@ class _GMapJabasState extends State<GMapJabas> {
         },
         icon: sourceIcones!));
   }
+
+
 
   void updatePinOnMap() async {
     /*CameraPosition cPosition = CameraPosition(
@@ -597,7 +603,7 @@ class _GMapJabasState extends State<GMapJabas> {
 
   Future<void> cargarCantidades() async {
     var datajabas;
-     showDialog(
+     /*showDialog(
         context: context,
         builder: (BuildContext context) {
           Size size = MediaQuery.of(context).size;
@@ -614,7 +620,7 @@ class _GMapJabasState extends State<GMapJabas> {
                       Text("Verificando jabas")
                     ]),
                   )));
-        });
+        });*/
     var response1 = await http.get(
         Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=totalizadojabas"),
         headers: {"Accept": "application/json"});
@@ -629,7 +635,7 @@ class _GMapJabasState extends State<GMapJabas> {
     });
      }
 
-     Navigator.pop(context);
+    // Navigator.pop(context);
 
   }
 
@@ -1051,72 +1057,6 @@ class _GMapJabasState extends State<GMapJabas> {
                     print('si actualiza');
                   },
                 ),
-                const SizedBox(height: 10,),
-                GestureDetector(
-                  child: Container(
-
-                    margin: const EdgeInsets.only(top: 10, right: 10),
-                    child: ClipOval(
-                        child: Container(
-                            color: kPanetone,
-                            //margin: EdgeInsets.only(top: 45),
-                            padding: const EdgeInsets.all(5),
-                            child: const Icon(
-                              Icons.add,
-                              color: Colors.white,
-                              size: 32,
-                            ))),
-                    decoration: BoxDecoration(
-                        color: kArandano,
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(50),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 10.0,
-                            offset: Offset(0.0, 10.0),
-                          )
-                        ]),
-                  ),
-                  onTap: () async {
-                    _markers.removeWhere((m) => m.markerId.value != '');
-                    cargarCantidades();
-                    recibirAcopios();
-                    print('si actualiza');
-                  },
-                ),
-                const SizedBox(height: 10,),
-                GestureDetector(
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 10, right: 10),
-                    child: ClipOval(
-                        child: Container(
-                            color: Colors.red,
-                            //margin: EdgeInsets.only(top: 45),
-                            padding: const EdgeInsets.all(5),
-                            child: const Icon(
-                              Icons.exit_to_app,
-                              color: Colors.white,
-                              size: 32,
-                            ))),
-                    decoration: BoxDecoration(
-                        color: kArandano,
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(50),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 10.0,
-                            offset: Offset(0.0, 10.0),
-                          )
-                        ]),
-                  ),
-                  onTap: () async {
-                    _markers.removeWhere((m) => m.markerId.value != '');
-                    recibirAcopios();
-                    print('si actualiza');
-                  },
-                ),
 
               ],
             )),
@@ -1151,6 +1091,10 @@ class _GMapJabasState extends State<GMapJabas> {
                         ]),
                   ),
                   onTap: () async {
+                    showDialog(
+                        context: context,
+                        builder: (context) => CustomDialogsActividad(
+                            title: "COSECHA"));
                   },
                 ),
                 const SizedBox(height: 10,),
@@ -1552,6 +1496,151 @@ class CustomDialogsBuscar extends StatelessWidget {
             backgroundImage: AssetImage(imagen!),
           ),
         )
+      ],
+    );
+  }
+}
+
+class CustomDialogsActividad extends StatefulWidget {
+  final String? title;
+
+
+  const CustomDialogsActividad(
+      {Key? key,
+        this.title})
+      : super(key: key);
+  @override
+  _CustomDialogsActividadState createState() => _CustomDialogsActividadState();
+}
+
+class _CustomDialogsActividadState extends State<CustomDialogsActividad>{
+
+  List? datajabas;
+  Future<void> cargarCantidadesJabas() async {
+    print("prueba de cantidad de jabas");
+    /*showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          Size size = MediaQuery.of(context).size;
+          return Center(
+              child: AlertDialog(
+                  backgroundColor: Colors.transparent,
+                  content: Container(
+                    color: Colors.white,
+                    height: size.height / 7,
+                    padding: const EdgeInsets.all(20),
+                    child: Column(children:  const <Widget>[
+                      CircularProgressIndicator(),
+                      SizedBox(height: 5),
+                      Text("Verificando jabas")
+                    ]),
+                  )));
+        });*/
+    var response1 = await http.get(
+        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=jabascosechadas"),
+        headers: {"Accept": "application/json"});
+    //if (mounted) {
+     setState(() {
+        var extraerData1 = json.decode(response1.body);
+        print("PRUEBA JABAS: ----"+extraerData1.toString());
+        datajabas = extraerData1["datos"];
+    });
+   // Navigator.pop(context);
+
+  }
+
+  void initState() {
+    super.initState();
+    cargarCantidadesJabas();
+  }
+
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      child: dialogContents(context),
+    );
+  }
+
+  dialogContents(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return Stack(
+      children: <Widget>[
+        Container(
+          padding:
+          const EdgeInsets.only(top: 50, bottom: 16, left: 16, right: 16),
+          margin: const EdgeInsets.only(top: 16),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(50),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10.0,
+                  offset: Offset(0.0, 10.0),
+                )
+              ]),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const Text(
+                "MÓDULO |COSECHADO| POR CARGAR",
+                style:  TextStyle(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w700,
+                  color: kPrimaryColor
+                ),
+              ),
+              const Divider(),
+              const SizedBox(height: 10.0),
+              SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: SizedBox(
+             // height: size.height / 1.5,
+                child: ListView.builder(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                itemCount: datajabas == null ? 0 : datajabas!.length,
+                itemBuilder: (BuildContext context, i) {
+                //  print("JABAAAAASSSS: "+datajabas![i]["CONSUMIDOR"]);
+                  if (datajabas!.isEmpty) {
+                    return const Center(
+                        child: Text("Sin datos",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black)));
+                  } else {
+                       /* child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [*/
+                          return Container(child:Text(datajabas![i]["CONSUMIDOR"] + " | "+datajabas![i]["CANTIDAD_JABAS"]+" | "+datajabas![i]["JABAS_PORCARGAR"], style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black)));
+                      //  ]);
+                    //  MapBottomPillHome();
+                  }
+                  //return Container();
+                },
+              ),),),
+              const SizedBox(height: 12.0),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    "OK",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w700, color: Colors.grey),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
       ],
     );
   }
