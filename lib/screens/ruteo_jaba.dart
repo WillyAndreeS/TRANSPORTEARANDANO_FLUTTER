@@ -19,6 +19,7 @@ import 'package:transporte_arandanov2/model/jabas_model.dart';
 import 'package:transporte_arandanov2/screens/principal_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:transporte_arandanov2/screens/pin_pill_info.dart';
+import 'package:transporte_arandanov2/screens/registro_viaje_adm.dart';
 //import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'dart:math' as math;
 
@@ -257,7 +258,7 @@ class _GMapJabasState extends State<GMapJabas> {
                           double.parse(acopiosrestantes[i].longitud!)),
                       icon: bitmapDescriptor,
                       onTap: () {
-                        showDialog(
+                        /*showDialog(
                             context: context,
                             builder: (context) => CustomDialogs(
                                 title: "ACOPIO OCUPADO POR: "+acopiosrestantes![i].name.toString(),
@@ -265,13 +266,13 @@ class _GMapJabasState extends State<GMapJabas> {
                                 imagen: "assets/images/arandano_icon.png",
                                 cantidad: acopiosrestantes![i].cantidadjabas.toString(),
                                 alias: acopiosrestantes![i].alias.toString()
-                            ));
-                       /* Navigator.push(
+                            ));*/
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                RegistroViaje(
-                                  title: "ACOPIO DE: " + datapunto![i]["NAME"],
+                                RegistroViajeAdm(
+                                  title: "ACOPIO DE: " + acopiosrestantes![i].name.toString(),
                                   description: acopiosrestantes[i].descripcion!,
                                   imagen: "assets/images/arandano_icon.png",
                                   cantidad: acopiosrestantes[i].cantidadjabas
@@ -286,7 +287,7 @@ class _GMapJabasState extends State<GMapJabas> {
                                   tipoacopio: '-',
                                 ),
                           ),
-                        );*/
+                        );
                       }),
                 );
               }else if(int.parse(acopiosrestantes[i].cantidadjabas.toString()) == 0){
@@ -301,7 +302,7 @@ class _GMapJabasState extends State<GMapJabas> {
                           double.parse(acopiosrestantes![i].longitud.toString())),
                       icon: bitmapDescriptor,
                       onTap: () {
-                        showDialog(
+                        /*showDialog(
                             context: context,
                             builder: (context) => CustomDialogs(
                                 title: "ACOPIO OCUPADO POR: "+acopiosrestantes![i].name.toString(),
@@ -309,26 +310,28 @@ class _GMapJabasState extends State<GMapJabas> {
                                 imagen: "assets/images/arandano_icon.png",
                                 cantidad: acopiosrestantes![i].cantidadjabas.toString(),
                                 alias: acopiosrestantes![i].alias.toString()
-                            ));
-                        /*Navigator.push(
+                            ));*/
+                        Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            RegistroViaje(
-                              title: "ACOPIO DE: " + datapunto![i]["NAME"],
-                              description: datapunto![i]["DESCRIPCION"],
-                              imagen: "assets/images/ar andano_icon.png",
-                              cantidad: datapunto![i]["CANTIDAD_JABAS"],
-                              alias: datapunto![i]["ALIAS"],
-                              latitud: datapunto![i]["LATITUD"],
-                              longitud: datapunto![i]["LONGITUD"],
-                              idacopio: datapunto![i]["IDACOPIO"],
+                            RegistroViajeAdm(
+                              title: "ACOPIO DE: " + acopiosrestantes![i].name.toString(),
+                              description: acopiosrestantes[i].descripcion!,
+                              imagen: "assets/images/arandano_icon.png",
+                              cantidad: acopiosrestantes[i].cantidadjabas
+                                  .toString(),
+                              alias: acopiosrestantes[i].alias!,
+                              latitud: acopiosrestantes[i].latitud!,
+                              longitud: acopiosrestantes[i].longitud!,
+                              idacopio: acopiosrestantes[i].idlugar
+                                  .toString(),
                               // area: data[i]["AREA"],
                               idviajes: result.toString(),
                               tipoacopio: '-',
                             ),
                       ),
-                    );*/
+                    );
                       }),
                 );
               }else if(int.parse(acopiosrestantes[i].cantidadjabas.toString()) < 0){
@@ -343,7 +346,7 @@ class _GMapJabasState extends State<GMapJabas> {
                           double.parse(datapunto![i].longitud.toString())),
                       icon: bitmapDescriptor,
                       onTap: () {
-                        showDialog(
+                        /*showDialog(
                             context: context,
                             builder: (context) => CustomDialogs(
                                 title: "ACOPIO OCUPADO POR: "+acopiosrestantes![i].name.toString(),
@@ -351,26 +354,28 @@ class _GMapJabasState extends State<GMapJabas> {
                                 imagen: "assets/images/arandano_icon.png",
                                 cantidad: acopiosrestantes![i].cantidadjabas.toString(),
                                 alias: acopiosrestantes![i].alias.toString()
-                            ));
-                        /*Navigator.push(
+                            ));*/
+                        Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            RegistroViaje(
-                              title: "ACOPIO DE: " + datapunto![i]["NAME"],
-                              description: datapunto![i]["DESCRIPCION"],
-                              imagen: "assets/images/ar andano_icon.png",
-                              cantidad: datapunto![i]["CANTIDAD_JABAS"],
-                              alias: datapunto![i]["ALIAS"],
-                              latitud: datapunto![i]["LATITUD"],
-                              longitud: datapunto![i]["LONGITUD"],
-                              idacopio: datapunto![i]["IDACOPIO"],
+                            RegistroViajeAdm(
+                              title: "ACOPIO DE: " + acopiosrestantes![i].name.toString(),
+                              description: acopiosrestantes[i].descripcion!,
+                              imagen: "assets/images/arandano_icon.png",
+                              cantidad: acopiosrestantes[i].cantidadjabas
+                                  .toString(),
+                              alias: acopiosrestantes[i].alias!,
+                              latitud: acopiosrestantes[i].latitud!,
+                              longitud: acopiosrestantes[i].longitud!,
+                              idacopio: acopiosrestantes[i].idlugar
+                                  .toString(),
                               // area: data[i]["AREA"],
                               idviajes: result.toString(),
                               tipoacopio: '-',
                             ),
                       ),
-                    );*/
+                    );
                       }),
                 );
               }
@@ -698,7 +703,7 @@ class _GMapJabasState extends State<GMapJabas> {
                       double.parse(datapunto![i]["LONGITUD"])),
                   icon: bitmapDescriptor,
                   onTap: () {
-                    showDialog(
+                    /*showDialog(
                         context: context,
                         builder: (context) => CustomDialogs(
                           title: "ACOPIO OCUPADO POR: "+datapunto![i]["NAME"],
@@ -706,13 +711,14 @@ class _GMapJabasState extends State<GMapJabas> {
                           imagen: "assets/images/arandano_icon.png",
                           cantidad: datapunto![i]["CANTIDAD_JABAS"],
                           alias: datapunto![i]["ALIAS"]
-                        ));
-                    /*Navigator.push(
+                        ));*/
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            RegistroViaje(
+                            RegistroViajeAdm(
                               title: "ACOPIO DE: " + datapunto![i]["NAME"],
+                              trazabilidad: datapunto![i]["TRAZA"],
                               description: datapunto![i]["DESCRIPCION"],
                               imagen: "assets/images/ar andano_icon.png",
                               cantidad: datapunto![i]["CANTIDAD_JABAS"],
@@ -725,7 +731,7 @@ class _GMapJabasState extends State<GMapJabas> {
                               tipoacopio: '-',
                             ),
                       ),
-                    );*/
+                    );
                   }),
             );
           }else if(int.parse(datapunto![i]["CANTIDAD_JABAS"]) == 0){
@@ -740,7 +746,7 @@ class _GMapJabasState extends State<GMapJabas> {
                       double.parse(datapunto![i]["LONGITUD"])),
                   icon: bitmapDescriptor,
                   onTap: () {
-                    showDialog(
+                    /*showDialog(
                         context: context,
                         builder: (context) => CustomDialogs(
                             title: "ACOPIO OCUPADO POR: "+datapunto![i]["NAME"],
@@ -748,13 +754,14 @@ class _GMapJabasState extends State<GMapJabas> {
                             imagen: "assets/images/arandano_icon.png",
                             cantidad: datapunto![i]["CANTIDAD_JABAS"],
                             alias: datapunto![i]["ALIAS"]
-                        ));
-                    /*Navigator.push(
+                        ));*/
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            RegistroViaje(
+                            RegistroViajeAdm(
                               title: "ACOPIO DE: " + datapunto![i]["NAME"],
+                              trazabilidad: datapunto![i]["TRAZA"],
                               description: datapunto![i]["DESCRIPCION"],
                               imagen: "assets/images/ar andano_icon.png",
                               cantidad: datapunto![i]["CANTIDAD_JABAS"],
@@ -767,7 +774,7 @@ class _GMapJabasState extends State<GMapJabas> {
                               tipoacopio: '-',
                             ),
                       ),
-                    );*/
+                    );
                   }),
             );
           }else if(int.parse(datapunto![i]["CANTIDAD_JABAS"]) < 0){
@@ -782,7 +789,7 @@ class _GMapJabasState extends State<GMapJabas> {
                       double.parse(datapunto![i]["LONGITUD"])),
                   icon: bitmapDescriptor,
                   onTap: () {
-                    showDialog(
+                    /*showDialog(
                         context: context,
                         builder: (context) => CustomDialogs(
                             title: "ACOPIO OCUPADO POR: "+datapunto![i]["NAME"],
@@ -790,13 +797,14 @@ class _GMapJabasState extends State<GMapJabas> {
                             imagen: "assets/images/arandano_icon.png",
                             cantidad: datapunto![i]["CANTIDAD_JABAS"],
                             alias: datapunto![i]["ALIAS"]
-                        ));
-                    /*Navigator.push(
+                        ));*/
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            RegistroViaje(
+                            RegistroViajeAdm(
                               title: "ACOPIO DE: " + datapunto![i]["NAME"],
+                              trazabilidad: datapunto![i]["TRAZA"],
                               description: datapunto![i]["DESCRIPCION"],
                               imagen: "assets/images/ar andano_icon.png",
                               cantidad: datapunto![i]["CANTIDAD_JABAS"],
@@ -809,7 +817,7 @@ class _GMapJabasState extends State<GMapJabas> {
                               tipoacopio: '-',
                             ),
                       ),
-                    );*/
+                    );
                   }),
             );
           }

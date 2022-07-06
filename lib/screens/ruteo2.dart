@@ -131,7 +131,7 @@ Future<void> recibirDatosAcopiosMapeados(List params) async {
               acopiosmapeados![i]["ALIAS"],
               acopiosmapeados![i]["LATITUD"],
               acopiosmapeados![i]["LONGITUD"],
-              '-',
+              acopiosmapeados![i]["TRAZA"],
               int.parse(acopiosmapeados![i]["IDLUGAR"]));
         }
       }
@@ -151,7 +151,7 @@ Future<void> recibirDatosAcopiosMapeados(List params) async {
               datapunto![i]["ALIAS"],
               datapunto![i]["LATITUD"],
               datapunto![i]["LONGITUD"],
-              '-',
+              datapunto![i]["TRAZA"],
               int.parse(datapunto![i]["IDACOPIO"]),
               datapunto![i]["NAME"]);
         }
@@ -347,6 +347,7 @@ class _GMapState extends State<GMap> {
                           builder: (context) =>
                               RegistroViaje(
                                 title: "NOTA DE TRASLADO",
+                                trazabilidad: acopios[i].descripcion!,
                                 description: acopios[i].descripcion!,
                                 imagen: "assets/images/arandano_icon.png",
                                 cantidad: cantidadJabasRestantes.toString(),
@@ -384,6 +385,7 @@ class _GMapState extends State<GMap> {
                               RegistroViaje(
                                 title: "NOTA DE TRASLADO",
                                 description: acopios[i].descripcion!,
+                                trazabilidad: acopios[i].descripcion!,
                                 imagen: "assets/images/arandano_icon.png",
                                 cantidad: acopios[i].cantidadjabas.toString(),
                                 alias: acopios[i].alias!,
@@ -456,6 +458,7 @@ class _GMapState extends State<GMap> {
                             builder: (context) =>
                                 RegistroViaje(
                                   title: "ACOPIO DE: " + datapunto![i]["NAME"],
+                                  trazabilidad: acopiosrestantes[i].descripcion!,
                                   description: acopiosrestantes[i].descripcion!,
                                   imagen: "assets/images/arandano_icon.png",
                                   cantidad: cantidadJabasRestantes.toString(),
@@ -501,6 +504,7 @@ class _GMapState extends State<GMap> {
                             builder: (context) =>
                                 RegistroViaje(
                                   title: "ACOPIO DE: " + datapunto![i]["NAME"],
+                                  trazabilidad: acopiosrestantes[i].descripcion!,
                                   description: acopiosrestantes[i].descripcion!,
                                   imagen: "assets/images/arandano_icon.png",
                                   cantidad: acopiosrestantes[i].cantidadjabas
@@ -972,6 +976,7 @@ class _GMapState extends State<GMap> {
                             builder: (context) =>
                                 RegistroViaje(
                                   title: "ACOPIO DE: "+datapunto![i]["NAME"],
+                                  trazabilidad: datapunto![i]["DESCRIPCION"],
                                   description: datapunto![i]["DESCRIPCION"],
                                   imagen: "assets/images/ar andano_icon.png",
                                   cantidad: cantidadJabasRestantes.toString(),
@@ -1014,6 +1019,7 @@ class _GMapState extends State<GMap> {
                             builder: (context) =>
                                 RegistroViaje(
                                   title: "ACOPIO DE: " + datapunto![i]["NAME"],
+                                  trazabilidad: datapunto![i]["DESCRIPCION"],
                                   description: datapunto![i]["DESCRIPCION"],
                                   imagen: "assets/images/ar andano_icon.png",
                                   cantidad: datapunto![i]["CANTIDAD_JABAS"],
@@ -1103,6 +1109,7 @@ class _GMapState extends State<GMap> {
                         MaterialPageRoute(
                           builder: (context) => RegistroViaje(
                             title: "NOTA DE TRASLADO",
+                            trazabilidad: acopiosmapeados![i]["TRAZA"],
                             description: acopiosmapeados![i]["DESCRIPCION"],
                             imagen: "assets/images/ar andano_icon.png",
                             cantidad: cantidadJabasRestantes.toString(),
@@ -1137,6 +1144,7 @@ class _GMapState extends State<GMap> {
                         MaterialPageRoute(
                           builder: (context) => RegistroViaje(
                             title: "NOTA DE TRASLADO",
+                            trazabilidad: acopiosmapeados![i]["TRAZA"],
                             description: acopiosmapeados![i]["DESCRIPCION"],
                             imagen: "assets/images/ar andano_icon.png",
                             cantidad: acopiosmapeados![i]["CANTIDAD_JABAS"],
@@ -1229,6 +1237,7 @@ class _GMapState extends State<GMap> {
                       MaterialPageRoute(
                         builder: (context) => RegistroViaje(
                           title: "NOTA DE TRASLADO",
+                          trazabilidad: widget.data![i][i]["TRAZA"],
                           description: widget.data![i]["DESCRIPCION"],
                           imagen: "assets/images/ar andano_icon.png",
                           cantidad: widget.data![i]["CANTIDAD_JABAS"],
@@ -1696,6 +1705,7 @@ class _GMapState extends State<GMap> {
                       builder: (context) => RegistroViaje(
                         title: "NOTA DE TRASLADO",
                         imagen: "assets/images/ar andano_icon.png",
+                        trazabilidad: jabaindividual![i]["TRAZA"],
                         description: jabaindividual![i]["IDCONSUMIDOR"],
                         cantidad: jabaindividual![i]["CANTJABAS"],
                         alias: jabaindividual![i]["ALIAS"],
@@ -1715,6 +1725,7 @@ class _GMapState extends State<GMap> {
                       builder: (context) => RegistroViaje(
                         title: "NOTA DE TRASLADO",
                         imagen: "assets/images/ar andano_icon.png",
+                        trazabilidad: jabaindividual![i]["TRAZA"],
                         description: jabaindividual![i]["IDCONSUMIDOR"],
                         cantidad: jabaindividual![i]["CANTJABAS"],
                         alias: jabaindividual![i]["ALIAS"],

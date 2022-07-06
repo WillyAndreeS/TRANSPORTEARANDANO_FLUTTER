@@ -14,9 +14,9 @@ import 'package:transporte_arandanov2/model/jabas_model.dart';
 import 'package:transporte_arandanov2/model/variedades_model.dart';
 import 'package:transporte_arandanov2/screens/ruteo_sinterminar.dart';
 
-class RegistroViaje extends StatefulWidget {
+class RegistroViajeAdm extends StatefulWidget {
   final String? title,
-      trazabilidad,
+  trazabilidad,
       description,
       buttontext,
       imagen,
@@ -29,10 +29,10 @@ class RegistroViaje extends StatefulWidget {
       longitud;
   final Image? image;
 
-  const RegistroViaje(
+  const RegistroViajeAdm(
       {Key? key,
       this.title,
-      this.trazabilidad,
+        this.trazabilidad,
       this.description,
       this.buttontext,
       this.image,
@@ -47,10 +47,10 @@ class RegistroViaje extends StatefulWidget {
       : super(key: key);
 
   @override
-  _RegistroViajeState createState() => _RegistroViajeState();
+  _RegistroViajeAdmState createState() => _RegistroViajeAdmState();
 }
 
-class _RegistroViajeState extends State<RegistroViaje> {
+class _RegistroViajeAdmState extends State<RegistroViajeAdm> {
   String? _value = "Código de válvula";
   String? dropdownValue;
   String? dropdownValueBarra;
