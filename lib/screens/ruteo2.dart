@@ -121,7 +121,7 @@ Future<void> recibirDatosAcopiosMapeados(List params) async {
           headers: {"Accept": "application/json"});
       extraerDataAcopiosMapeados = json.decode(response.body);
       acopiosmapeados = extraerDataAcopiosMapeados["datos"];
-      print("ACOPIO MAPEADO: " + acopiosmapeados![0]["CANTIDAD_JABAS"]);
+      //print("ACOPIO MAPEADO: " + acopiosmapeados![0]["CANTIDAD_JABAS"]);
       if (acopiosmapeados!.isNotEmpty) {
         for (var i = 0; i < acopiosmapeados!.length; i++) {
           DatabaseProvider.db
@@ -927,9 +927,10 @@ class _GMapState extends State<GMap> {
                     ]),
                   )));
         });
+    try{
     var response1 = await http.get(
         Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=puntoiniciomanual&modulo=${modinicial!}"),
-        headers: {"Accept": "application/json"});
+        headers: {"Accept": "application/json"}).timeout(const Duration(seconds: 15));
     if (mounted) {
       setState(() {
         extraerData1 = json.decode(response1.body);
@@ -1044,6 +1045,15 @@ class _GMapState extends State<GMap> {
             ddData.add(objeto);
           });
         }
+    } on TimeoutException catch (_) {
+      throw ('Tiempo de espera alcanzado');
+    } on SocketException {
+      throw ('Sin internet  o falla de servidor ');
+    } on HttpException {
+      throw ("No se encontro esa peticion");
+    } on FormatException {
+      throw ("Formato erroneo ");
+    }
         Navigator.pop(context);
 
   }
@@ -1069,10 +1079,11 @@ class _GMapState extends State<GMap> {
                     ]),
                   )));
         });
+    try{
     var response = await http.get(
         Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=acopiosmapeados&idviajes=" +
             result),
-        headers: {"Accept": "application/json"});
+        headers: {"Accept": "application/json"}).timeout(const Duration(seconds: 15));
     if (mounted) {
       setState(() {
         extraerDataAcopiosMapeados = json.decode(response.body);
@@ -1163,9 +1174,20 @@ class _GMapState extends State<GMap> {
             }
           });
         }
-        Navigator.pop(context);
+
+
       });
     }
+    } on TimeoutException catch (_) {
+      throw ('Tiempo de espera alcanzado');
+    } on SocketException {
+      throw ('Sin internet  o falla de servidor ');
+    } on HttpException {
+      throw ("No se encontro esa peticion");
+    } on FormatException {
+      throw ("Formato erroneo ");
+    }
+    Navigator.pop(context);
   }
 
   Future<void> recibirDatos() async {
@@ -1237,7 +1259,7 @@ class _GMapState extends State<GMap> {
                       MaterialPageRoute(
                         builder: (context) => RegistroViaje(
                           title: "NOTA DE TRASLADO",
-                          trazabilidad: widget.data![i][i]["TRAZA"],
+                          trazabilidad: widget.data![i]["TRAZA"] == null ? '-' : widget.data![i]["TRAZA"]!,
                           description: widget.data![i]["DESCRIPCION"],
                           imagen: "assets/images/ar andano_icon.png",
                           cantidad: widget.data![i]["CANTIDAD_JABAS"],
@@ -1391,6 +1413,24 @@ class _GMapState extends State<GMap> {
 
   Future<void> reiniciarAcopios() async {
     // print("ALIAS ESTADO: " + pacopios);
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          Size size = MediaQuery.of(context).size;
+          return Center(
+              child: AlertDialog(
+                  backgroundColor: Colors.transparent,
+                  content: Container(
+                    color: Colors.white,
+                    height: size.height / 7,
+                    padding: const EdgeInsets.all(20),
+                    child: Column(children: const <Widget>[
+                      CircularProgressIndicator(),
+                      SizedBox(height: 5),
+                      Text("Liberando acopios restantes")
+                    ]),
+                  )));
+        });
     var response = await http.get(
         Uri.parse("${url_base}acp/index.php/transportearandano/setReinicioAcopios?accion=reinicio&idviajes=" +
             result),
@@ -1402,6 +1442,7 @@ class _GMapState extends State<GMap> {
         print("RESULTADO: $result");
       });
     }
+    Navigator.pop(context);
   }
 
   Future<void> reiniciarAcopiosSinUso() async {
@@ -1435,6 +1476,24 @@ class _GMapState extends State<GMap> {
   }
 
   Future<void> guardarAcopios(String xml) async {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          Size size = MediaQuery.of(context).size;
+          return Center(
+              child: AlertDialog(
+                  backgroundColor: Colors.transparent,
+                  content: Container(
+                    color: Colors.white,
+                    height: size.height / 7,
+                    padding: const EdgeInsets.all(20),
+                    child: Column(children: const <Widget>[
+                      CircularProgressIndicator(),
+                      SizedBox(height: 5),
+                      Text("Guardando datos restantes")
+                    ]),
+                  )));
+        });
     var response = await http.post(
         Uri.parse(
             "${url_base}acp/index.php/transportearandano/setAcopiosDetailNota"),
@@ -1446,6 +1505,7 @@ class _GMapState extends State<GMap> {
         print("RESULTADO DE INSERCIÓN DE acopios: $result");
       });
     }
+    Navigator.pop(context);
   }
 
   Future<void> guardarRuta(double latitud, double longitud) async {
@@ -1662,9 +1722,10 @@ class _GMapState extends State<GMap> {
     //if (mycontrolleracopio.text != null) {
     var bitmapData;
     List? jabaindividual;
+    try{
     var response = await http.get(
         Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=acopioindividual&idlugar=${buscarDireccion!}"),
-        headers: {"Accept": "application/json"});
+        headers: {"Accept": "application/json"}).timeout(const Duration(seconds: 20));
     if (mounted) {
       setState(() {
         var extraerDatajabai = json.decode(response.body);
@@ -1744,6 +1805,16 @@ class _GMapState extends State<GMap> {
         // setState(() {});
       }
     }
+    } on TimeoutException catch (_) {
+      throw ('Tiempo de espera alcanzado');
+    } on SocketException {
+      throw ('Sin internet  o falla de servidor ');
+    } on HttpException {
+      throw ("No se encontro esa peticion");
+    } on FormatException {
+      throw ("Formato erroneo ");
+    }
+
     FocusScope.of(context).requestFocus(FocusNode());
     Navigator.pop(context);
 
@@ -2224,17 +2295,21 @@ class _GMapState extends State<GMap> {
                                             )));
                                   });
                               estadoinsert = "terminado";
+                              String results ="";
                               //_obtenerCodigoVehiculo();
                               String codigov = result.toString() ?? '0';
+                              try{
                               var response = await http.get(
                                   Uri.parse("${url_base}acp/index.php/transportearandano/setTravelUpdate?accion=estadoViaje&idviajes=$codigov&tipo=1"),
-                                  headers: {"Accept": "application/json"});
+                                  headers: {"Accept": "application/json"}).timeout(const Duration(seconds: 15));
                               if (mounted) {
                                 setState(() {
                                   var extraerData = json.decode(response.body);
-                                  String results =
+                                   results =
                                       extraerData["state"].toString();
                                   print("RESULTADO ESTADO VIAJE: $results");
+                                });
+                              }
                                   if (results == "true") {
                                     jabas_moment = 0;
                                     StringBuffer xmlViajesAcopio =
@@ -2243,10 +2318,10 @@ class _GMapState extends State<GMap> {
                                     String cabeceraXml =
                                         "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><SOLICITUD_DESTINO>";
                                     String itemXml = "";
-                                    DatabaseProvider.db
+                                    await DatabaseProvider.db
                                         .getJabasWithoutAlias(
                                             int.parse(codigov))
-                                        .then((List<Jabas> jabas) {
+                                        .then((List<Jabas> jabas) async{
                                       if (jabas.isNotEmpty) {
                                         for (var i = 0; i < jabas.length; i++) {
                                           itemXml += "<Item IDVIAJES=\"${jabas[i].idviaje}\" LATITUD=\"${jabas[i].lat!}\" LONGITUD=\"${jabas[i].long!}\" ALIAS=\"${jabas[i].alias!}\" CANTJABAS=\"${jabas[i]
@@ -2262,12 +2337,13 @@ class _GMapState extends State<GMap> {
                                       String xml2 =
                                           cabeceraXml + itemXml + pieXml;
                                       xmlViajesAcopio.write(xml2);
-                                      guardarAcopios(
+                                      await guardarAcopios(
                                           xmlViajesAcopio.toString());
                                       print("XML2: $xmlViajesAcopio");
                                     });
-                                    reiniciarAcopios();
+                                    await reiniciarAcopios();
                                   //  Navigator.pop(context);
+                                    if (!mounted) return;
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -2276,7 +2352,15 @@ class _GMapState extends State<GMap> {
                                       ),
                                     );
                                   }
-                                });
+
+                              } on TimeoutException catch (_) {
+                                throw ('Tiempo de espera alcanzado');
+                              } on SocketException {
+                                throw ('Sin internet  o falla de servidor ');
+                              } on HttpException {
+                                throw ("No se encontro esa peticion");
+                              } on FormatException {
+                                throw ("Formato erroneo ");
                               }
                             },
                           );

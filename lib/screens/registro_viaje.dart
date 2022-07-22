@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -92,7 +93,7 @@ class _RegistroViajeState extends State<RegistroViaje> {
   }
 
   Future<void> cargarVariedades(String cadenaconsumidor) async {
-
+    variedad.clear();
     var idac = cadenaconsumidor.split("|");
     var consumidor = idac[0];
     print("CONS: $consumidor");
@@ -111,6 +112,85 @@ class _RegistroViajeState extends State<RegistroViaje> {
         }
       });
     });
+  }
+
+  Future<void> GuardarNota() async{
+
+          try {
+
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    Size size = MediaQuery.of(context).size;
+                    return Center(
+                        child: AlertDialog(
+                            backgroundColor: Colors.transparent,
+                            content: Container(
+                              color: Colors.white,
+                              height: size.height / 7,
+                              padding: const EdgeInsets.all(20),
+                              child: Column(children: const <Widget>[
+                                CircularProgressIndicator(),
+                                SizedBox(height: 5),
+                                Text("Guardando...")
+                              ]),
+                            )));
+                  });
+              DateTime now = DateTime.now();
+              await DatabaseProvider.db
+                  .addJabasToDatabase(Jabas(
+                  idviaje:
+                  int.parse(widget.idviajes!),
+                  lat: widget.latitud ?? '00.000000',
+                  long: widget.longitud ?? '00.000000',
+                  alias: widget.alias ?? 'V0',
+                  nacional: myControllerNA?.text == null ? 0 : int.parse(
+                      myControllerNA.text),
+                  exportable: myControllerPD?.text == null ? 0 : int.parse(
+                      myControllerPD.text),
+                  desmedro: myControllerDE?.text == null ? 0 : int.parse(
+                      myControllerDE.text),
+                  frutac: myControllerFC?.text == null ? 0 : int.parse(
+                      myControllerFC.text),
+                  estado: 0,
+                  jabascargadas: 0,
+                  variedad: dropdownValue?.toString() == null
+                      ? ''
+                      : dropdownValue.toString(),
+                  condicion: dropdownValueCo?.toString() == null
+                      ? ''
+                      : dropdownValueCo.toString(),
+                  consumidor: (dropdownValueS?.toString() == null ||
+                      dropdownValueM?.toString() == null ||
+                      dropdownValueT?.toString() == null)
+                      ? ''
+                      : "${dropdownValueS.toString().substring(
+                      5)}${dropdownValueM.toString().substring(
+                      4)}${dropdownValueT.toString().substring(4)}ARA",
+                  valvula: dropdownValueV?.toString() == null
+                      ? ''
+                      : dropdownValueV.toString().substring(4),
+                  observaciones: myControllerOB?.text == null
+                      ? ''
+                      : myControllerOB.text,
+                  descripcion: _value,
+                  fllegada: now.toString())).timeout(
+                  const Duration(seconds: 15));
+              if (!mounted) return;
+              Navigator.of(context).pop();
+          } on TimeoutException catch (_) {
+            throw ('Tiempo de espera alcanzado');
+          } on SocketException {
+            throw ('Sin internet o falla de servidor ');
+          } on HttpException {
+            throw ("No se encontró esa petición");
+          } on FormatException {
+
+
+            throw ("Formato erroneo ");
+
+          }
+
   }
 
   Future<void> recibirDatosBarras(int idlugar) async {
@@ -738,6 +818,60 @@ class _RegistroViajeState extends State<RegistroViaje> {
                           "VAL 48",
                           "VAL 49",
                           "VAL 50",
+                          "VAL 51",
+                          "VAL 52",
+                          "VAL 53",
+                          "VAL 54",
+                          "VAL 55",
+                          "VAL 56",
+                          "VAL 57",
+                          "VAL 58",
+                          "VAL 59",
+                          "VAL 60",
+                          "VAL 61",
+                          "VAL 62",
+                          "VAL 63",
+                          "VAL 64",
+                          "VAL 65",
+                          "VAL 66",
+                          "VAL 67",
+                          "VAL 68",
+                          "VAL 69",
+                          "VAL 70",
+                          "VAL 71",
+                          "VAL 72",
+                          "VAL 73",
+                          "VAL 74",
+                          "VAL 75",
+                          "VAL 76",
+                          "VAL 77",
+                          "VAL 78",
+                          "VAL 79",
+                          "VAL 80",
+                          "VAL 81",
+                          "VAL 82",
+                          "VAL 83",
+                          "VAL 84",
+                          "VAL 85",
+                          "VAL 86",
+                          "VAL 87",
+                          "VAL 88",
+                          "VAL 89",
+                          "VAL 90",
+                          "VAL 91",
+                          "VAL 92",
+                          "VAL 93",
+                          "VAL 94",
+                          "VAL 95",
+                          "VAL 96",
+                          "VAL 97",
+                          "VAL 98",
+                          "VAL 99",
+                          "VAL 100",
+                          "VAL 101",
+                          "VAL 102",
+                          "VAL 103",
+                          "VAL 104",
                         ].map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
                               value: value, child: Text(value));
@@ -794,7 +928,7 @@ class _RegistroViajeState extends State<RegistroViaje> {
                     const SizedBox(height: 10.0),
                     Text(validacion!,
                         style:
-                            const TextStyle(color: Colors.red, fontSize: 12)),
+                            const TextStyle(color: Colors.red, fontSize: 14, fontWeight: FontWeight.bold )),
                     const SizedBox(height: 20),
                     Row(
                       children: <Widget>[
@@ -814,94 +948,40 @@ class _RegistroViajeState extends State<RegistroViaje> {
                                 ]),
                             child: TextButton(
                                 onPressed: () async {
-                                  // if (_formKey.currentState.validate()) {
-                                  if (_value == "Código de válvula") {
-                                    _mensaje = "Debe leer el código de válvula";
-                                    _mensajesValidaciones(_mensaje!);
-                                  } else {
-                                    DateTime now = DateTime.now();
-                                    print("datetime: $now");
-                                    var response = await DatabaseProvider.db
-                                        .addJabasToDatabase(Jabas(
-                                            idviaje:
-                                                int.parse(widget.idviajes!),
-                                            lat: widget.latitud ?? '00.000000',
-                                            long:
-                                                widget.longitud ?? '00.000000',
-                                            alias: widget.alias ?? 'V0',
-                                            // ignore: prefer_if_null_operators, unnecessary_null_comparison
-                                            nacional:
-                                                // ignore: prefer_if_null_operators, unnecessary_null_comparison
-                                                int.parse(myControllerNA.text) == null
-                                                    ? 0
-                                                    : int.parse(
-                                                        myControllerNA.text),
-                                            exportable:
-                                                // ignore: prefer_if_null_operators, unnecessary_null_comparison
-                                                int.parse(myControllerPD.text) == null
-                                                    ? 0
-                                                    : int.parse(
-                                                        myControllerPD.text),
-                                            // ignore: prefer_if_null_operators, unnecessary_null_comparison
-                                            desmedro:
-                                                // ignore: prefer_if_null_operators, unnecessary_null_comparison
-                                                int.parse(myControllerDE.text) == null
-                                                    ? 0
-                                                    : int.parse(
-                                                        myControllerDE.text),
-                                            frutac:
-                                            // ignore: prefer_if_null_operators, unnecessary_null_comparison
-                                            int.parse(myControllerFC.text) == null
-                                                ? 0
-                                                : int.parse(
-                                                myControllerFC.text),
-                                            estado: 0,
-                                            // ignore: unnecessary_null_comparison
-                                            jabascargadas: 0,
-                                            // ignore: prefer_if_null_operators, unnecessary_null_comparison
-                                            variedad: dropdownValue.toString() == null
-                                                ? ''
-                                                : dropdownValue.toString(),
-                                            // ignore: prefer_if_null_operators, unnecessary_null_comparison
-                                            condicion: dropdownValueCo.toString() ==
-                                                    null
-                                                ? ''
-                                                : dropdownValueCo.toString(),
-                                            consumidor: dropdownValueS == null
-                                                ? ''
-                                                // ignore: unnecessary_null_comparison
-                                                : dropdownValueS
-                                                                .toString()
-                                                                .substring(5) +
-                                                            dropdownValueM! ==
-                                                        null
-                                                    ? ''
-                                                    // ignore: unnecessary_null_comparison
-                                                    : dropdownValueM.toString().substring(4) + dropdownValueT! == null
-                                                        ? ''
-                                                        : dropdownValueT.toString().substring(4) + "ARA",
-                                            valvula: dropdownValueV == null ? '' : dropdownValueV.toString().substring(4),
-                                            // ignore: prefer_if_null_operators, unnecessary_null_comparison
-                                            observaciones: myControllerOB.text == null ? '' : myControllerOB.text,
-                                            // ignore: prefer_if_null_operators
-                                            descripcion: _value == null ? '' : _value,
-                                            fllegada: now.toString()));
-                                    print("sincronización: $response");
-                                    if (response > 0) {
-                                      Navigator.pop(context);
-                                    } else {
-                                      showDialog(
-                                          context: context,
-                                          builder: (context) =>
-                                              const CustomDialogsActividad(
-                                                  title: "MENSAJE",
-                                                  description:
-                                                      'Registro incorrecto vuelve a intentarlo',
-                                                  imagen:
-                                                      "assets/images/warning.png"));
-                                    }
-                                  }
-                                  // }
+                                  String jabasNacional = myControllerNA.text.isEmpty ? '-' : myControllerNA.text;
+                                  String jabasExportable = myControllerPD.text.isEmpty  ? '-' : myControllerPD.text;
+                                  String jabasDesmedro = myControllerDE.text.isEmpty  ? '-' : myControllerDE.text;
+                                  String jabasFrutacaida = myControllerFC.text.isEmpty ? '-' : myControllerFC.text;
+                                  String condicionjabas = dropdownValueCo?.toString() == null ? '-' : dropdownValueCo.toString();
+
+
+
+                                if(!_value.toString().contains("|") && !_value.toString().contains("ARA")) {
+                                  _mensajesValidaciones(
+                                      "Barra leida incorrectamente, revisa el código de barras");
+                                }else if(jabasNacional.contains("-")){
+                                  _mensajesValidaciones(
+                                      "Ingresa la cantidad de jabas nacionales");
+                                }else if(jabasExportable.contains("-")){
+                                  _mensajesValidaciones(
+                                      "Ingresa la cantidad de jabas exportables");
+                                }else if(jabasDesmedro.contains("-")){
+                                  _mensajesValidaciones(
+                                      "Ingresa la cantidad de jabas de desmedro");
+                                }else if(jabasFrutacaida.contains("-")){
+                                  _mensajesValidaciones(
+                                      "Ingresa la cantidad de jabas de fruta caida");
+                                }else if(condicionjabas.contains("-")){
+                                  _mensajesValidaciones(
+                                      "Selecciona la condición");
+
+                                }else{
+                                  await GuardarNota();
+                                  if (!mounted) return;
+                                  Navigator.of(context).pop();
+                                }
+
+
                                 },
                                 child: const Text(
                                   "Registrar",
