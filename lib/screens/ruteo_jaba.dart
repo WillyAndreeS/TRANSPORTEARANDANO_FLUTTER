@@ -41,6 +41,38 @@ String? modulojabas = '0';
 var extraerData1;
 List? datapunto;
 
+Future<void> recibirDatosReloadHilo(List params) async {
+  try {
+    final resulte = await InternetAddress.lookup('google.com');
+    if (resulte.isNotEmpty && resulte[0].rawAddress.isNotEmpty) {
+      String xml = params[0];
+      List dData = params[1];
+     // String idviajesrestult = params[2];
+      String results;
+      HttpOverrides.global = MyHttpOverrides();
+      var response = await http.post(
+          Uri.parse("${url_base}acp/index.php/transportearandano/setAcopiosDetailNota"),
+          body: {"xml": xml});
+      var extraerData = json.decode(response.body);
+      results = extraerData["state"].toString();
+
+      if (results.toString().contains("TRUE")) {
+        if (dData.isNotEmpty) {
+          for (var i = 0; i < dData.length; i++) {
+            print('Error IDVIAJE por: $dData[i]["IDVIAJES"]');
+            DatabaseProvider.db
+                .updateJabasViaje(dData[i]["IDVIAJES"], dData[i]["ALIAS"]);
+          }
+        }
+      }
+      // mensaje = results.toString();
+    }
+  } on Exception catch (e) {
+    print('Error causador por: $e');
+  }
+}
+
+
 Future<void> recibirDatosAcopiosMapeados(List params) async {
   try {
     final resulte = await InternetAddress.lookup('google.com');
@@ -106,7 +138,7 @@ class _GMapJabasState extends State<GMapJabas> {
   List? data1;
   List? areas;
 
-  var result;
+  //var result;
   double? distancia;
 
   int estado = 0;
@@ -135,6 +167,7 @@ class _GMapJabasState extends State<GMapJabas> {
   String? jabasrecogidas = '0';
   PinInformation? destinationPinInfo;
   FlutterIsolate? isolate2;
+  FlutterIsolate? isolate;
 
   @override
   void initState() {
@@ -155,6 +188,15 @@ class _GMapJabasState extends State<GMapJabas> {
     recibirAcopios();
     CargarJabas();
     cargarCantidades();
+  }
+
+  void saveBox(String xml, List dData) async {
+    try{
+      isolate?.kill();
+      isolate = await FlutterIsolate.spawn(recibirDatosReloadHilo, [xml, dData]);
+    } on IsolateSpawnException catch(e){
+      print(e);
+    }
   }
 
   void saveBoxAcopios() async {
@@ -283,7 +325,7 @@ class _GMapJabasState extends State<GMapJabas> {
                                   idacopio: acopiosrestantes[i].idlugar
                                       .toString(),
                                   // area: data[i]["AREA"],
-                                  idviajes: result.toString(),
+                               //   idviajes: result.toString(),
                                   tipoacopio: '-',
                                 ),
                           ),
@@ -327,7 +369,7 @@ class _GMapJabasState extends State<GMapJabas> {
                               idacopio: acopiosrestantes[i].idlugar
                                   .toString(),
                               // area: data[i]["AREA"],
-                              idviajes: result.toString(),
+                            //  idviajes: result.toString(),
                               tipoacopio: '-',
                             ),
                       ),
@@ -371,7 +413,7 @@ class _GMapJabasState extends State<GMapJabas> {
                               idacopio: acopiosrestantes[i].idlugar
                                   .toString(),
                               // area: data[i]["AREA"],
-                              idviajes: result.toString(),
+                             // idviajes: result.toString(),
                               tipoacopio: '-',
                             ),
                       ),
@@ -382,10 +424,71 @@ class _GMapJabasState extends State<GMapJabas> {
         }
       });
       cargarCantidades();
+      try {
+
+        StringBuffer xmlViajesAcopio = StringBuffer();
+        var ddData = [];
+        var objeto;
+        String cabeceraXml =
+            "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><SOLICITUD_DESTINO>";
+        String itemXml = "";
+        DatabaseProvider.db
+            .getJabasTotalViajes()
+            .then((List<Jabas> jabas) {
+          //  if (jabas.isNotEmpty) {
+          for (var i = 0; i < jabas.length; i++) {
+            if(jabas[i].jabascargadas != null) {
+              itemXml += "<Item IDVIAJES=\"${jabas[i].idviaje}\" LATITUD=\"${jabas[i].lat!}\" LONGITUD=\"${jabas[i].long!}\" ALIAS=\"${jabas[i].alias!}\" CANTJABAS=\"${jabas[i].jabascargadas}\" ESTADO=\"1\" DESCRIPCION=\"${jabas[i].descripcion!}\" JABASCARGADAS=\"${jabas[i].jabascargadas}\" FLLEGADA=\"${jabas[i].fllegada!}\" EXPORTABLE=\"${jabas[i].exportable}\" NACIONAL=\"${jabas[i].nacional}\" DESMEDRO=\"${jabas[i].desmedro}\" FRUTAC=\"${jabas[i].frutac}\" VARIEDAD=\"${jabas[i].variedad}\" CONDICION=\"${jabas[i].condicion}\" CONSUMIDOR=\"${jabas[i].consumidor}\" VALVULA=\"${jabas[i].valvula}\" OBSERVACIONES=\"${jabas[i].observaciones}\" />";
+              objeto = {
+                // Le agregas la fecha
+                "ALIAS": jabas[i].alias,
+                "IDVIAJES" : jabas[i].idviaje
+              };
+              ddData.add(objeto);
+            //  reiniciarAcopioIndividual(jabas[i].alias!);
+
+            }
+          }
+          //  }
+
+          String pieXml = "</SOLICITUD_DESTINO>";
+          String xml2 = cabeceraXml + itemXml + pieXml;
+          print("XML CARGADO$xml2");
+          xmlViajesAcopio.write(xml2);
+     //     print('idviaje: ' + result);
+          print("ALIAS: $ddData");
+          if(itemXml != ""){
+
+            saveBox(xmlViajesAcopio.toString(), ddData);
+          }
+
+        });
+
+      } on Exception catch (e) {
+        print('Error causador por: $e');
+      }
 // ------------------------------------------
 
     });
   }
+
+
+
+  /*Future<void> reiniciarAcopioIndividual(String alias) async {
+    print("ALIAS ESTADO: $alias");
+    var response = await http.get(
+        Uri.parse("${"${url_base}acp/index.php/transportearandano/setReinicioAcopiosIndividual?accion=reinicioindividual&idviajes=" +
+            result}&alias=$alias"),
+        headers: {"Accept": "application/json"});
+    if (mounted) {
+      setState(() {
+        var extraerData = json.decode(response.body);
+        String result = extraerData["state"].toString();
+        print("RESULTADO ACOPIO: $result");
+      });
+    }
+  }*/
+
 
   Future<Uint8List?> _createAvatarAcopiosRestantes(
       int width, int height, String name, Color color) async {
@@ -727,7 +830,7 @@ class _GMapJabasState extends State<GMapJabas> {
                               longitud: datapunto![i]["LONGITUD"],
                               idacopio: datapunto![i]["IDACOPIO"],
                               // area: data[i]["AREA"],
-                              idviajes: result.toString(),
+                           //   idviajes: result.toString(),
                               tipoacopio: '-',
                             ),
                       ),
@@ -770,7 +873,7 @@ class _GMapJabasState extends State<GMapJabas> {
                               longitud: datapunto![i]["LONGITUD"],
                               idacopio: datapunto![i]["IDACOPIO"],
                               // area: data[i]["AREA"],
-                              idviajes: result.toString(),
+                           //   idviajes: result.toString(),
                               tipoacopio: '-',
                             ),
                       ),
@@ -813,7 +916,7 @@ class _GMapJabasState extends State<GMapJabas> {
                               longitud: datapunto![i]["LONGITUD"],
                               idacopio: datapunto![i]["IDACOPIO"],
                               // area: data[i]["AREA"],
-                              idviajes: result.toString(),
+                            //  idviajes: result.toString(),
                               tipoacopio: '-',
                             ),
                       ),

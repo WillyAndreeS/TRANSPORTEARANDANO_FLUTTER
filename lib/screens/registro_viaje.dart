@@ -205,7 +205,7 @@ class _RegistroViajeState extends State<RegistroViaje> {
                     ),
                     const SizedBox(height: 10.0),
                     Text(
-                      widget.trazabilidad!,
+                      widget.trazabilidad! == null ? '-': widget.trazabilidad!,
                       style: const TextStyle(
                         fontSize: 14.0,
                         fontWeight: FontWeight.w700,
@@ -576,7 +576,7 @@ class _RegistroViajeState extends State<RegistroViaje> {
                             dropdownValueS = newValue;
                           });
                         },
-                        items: <String>["SEC. 07", "SEC. 08", "SEC. 09"]
+                        items: <String>["SEC. 05", "SEC. 06", "SEC. 08", "SEC. 09"]
                             .map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
                               value: value, child: Text(value));
@@ -610,7 +610,8 @@ class _RegistroViajeState extends State<RegistroViaje> {
                           "MOD 08",
                           "MOD 09",
                           "MOD 1O",
-                          "MOD 11"
+                          "MOD 11",
+                          "MOD 12"
                         ].map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
                               value: value, child: Text(value));
@@ -727,6 +728,16 @@ class _RegistroViajeState extends State<RegistroViaje> {
                           "VAL 38",
                           "VAL 39",
                           "VAL 40",
+                          "VAL 41",
+                          "VAL 42",
+                          "VAL 43",
+                          "VAL 44",
+                          "VAL 45",
+                          "VAL 46",
+                          "VAL 47",
+                          "VAL 48",
+                          "VAL 49",
+                          "VAL 50",
                         ].map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
                               value: value, child: Text(value));

@@ -515,6 +515,43 @@ class DatabaseProvider {
       return [];
     }
   }
+
+  Future<List<Jabas>> getJabasTotalViajes() async {
+    var db = await database;
+    List<Jabas> jabasList = [];
+    List<Map> queryList =
+    await db.query("jabas", where: "estado = ?", whereArgs: [0]);
+    print('[DBUser] getJabas: ${queryList.length} jabas');
+    if (queryList.isNotEmpty) {
+      for (int i = 0; i < queryList.length; i++) {
+        jabasList.add(Jabas(
+          idviaje: queryList[i]['idviaje'],
+          lat: queryList[i]['lat'],
+          long: queryList[i]['long'],
+          alias: queryList[i]['alias'],
+          jabascargadas: queryList[i]['jabascargadas'],
+          descripcion: queryList[i]['descripcion'],
+          fllegada: queryList[i]['fllegada'],
+          exportable: queryList[i]['exportable'],
+          nacional: queryList[i]['nacional'],
+          desmedro: queryList[i]['desmedro'],
+          frutac: queryList[i]['frutac'],
+          variedad: queryList[i]['variedad'],
+          condicion: queryList[i]['condicion'],
+          consumidor: queryList[i]['consumidor'],
+          valvula: queryList[i]['valvula'],
+          observaciones: queryList[i]['observaciones'],
+        ));
+        print('[DBJabasXML] getJabas: ${jabasList[i].alias}');
+      }
+      print('[DBJabas] getJabas: Jabas is null');
+      return jabasList;
+    } else {
+      print('[DBUser] getUser: User is null');
+      return [];
+    }
+  }
+
   Future<List<Jabas>> getJabasWithoutAlias(int idviaje) async {
     var db = await database;
     List<Jabas> jabasList = [];

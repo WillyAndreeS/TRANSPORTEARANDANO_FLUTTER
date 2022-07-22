@@ -946,6 +946,7 @@ class _GMapState extends State<GMap> {
 
           var bitmapDescriptor = BitmapDescriptor.fromBytes(bitmapData);
           if((cantidadJabasRestantes - cantidadrestada) > 0) {
+            print("TRAZA: "+datapunto![i]["TRAZA"]);
             _markers.add(
               Marker(
                   markerId: MarkerId(datapunto![i]["ALIAS"]),

@@ -52,8 +52,10 @@ class RegistroViajeAdm extends StatefulWidget {
 
 class _RegistroViajeAdmState extends State<RegistroViajeAdm> {
   String? _value = "Código de válvula";
+  String? _value2 = "Código de viaje";
   String? dropdownValue;
   String? dropdownValueBarra;
+  String? dropdownValueViaje;
   String? dropdownValueV;
   String? dropdownValueS;
   String? dropdownValueM;
@@ -61,8 +63,11 @@ class _RegistroViajeAdmState extends State<RegistroViajeAdm> {
   String? dropdownValueCo;
   List variedad = [];
   List databarras = [];
+  List dataViajes = [];
+  List dataCond = [];
   String? title;
   String? resultacopio;
+  String idviajeconductor = "0";
   String? _mensaje, validacion = "";
   final myControllerPD = TextEditingController();
   final myControllerPJ = TextEditingController();
@@ -133,11 +138,54 @@ class _RegistroViajeAdmState extends State<RegistroViajeAdm> {
     });
   }
 
+
+  Future<void> recibirViajes() async {
+    // ignore: prefer_typing_uninitialized_variables
+    dataViajes.clear();
+    var response1 = await http.get(
+        Uri.parse("${url_base}acp/index.php/transportearandano/transportistas"),
+        headers: {"Accept": "application/json"});
+      setState(() {
+        extraerData1 = json.decode(response1.body);
+        print("PRUEBAAAA: ----"+extraerData1.toString());
+        dataViajes = extraerData1["resultado"];
+       /* for (var i = 0; i < dataViajes.length; i++) {
+          var objeto = {
+            // Le agregas la fecha
+            "IDVIAJES": dataViajes[i]["IDVIAJES"],
+            "CONDUCTORES": dataViajes[i]["CONDUCTORES"]
+          };
+          dataViajes.add(objeto);
+        }*/
+        //  databarras = consumidores;
+      });
+  }
+
+  Future<void> recibirViajesconductor(String conductor) async {
+    // ignore: prefer_typing_uninitialized_variables
+    print("DONCUTOR PRUEBA:"+ conductor.substring(12));
+    String conductor_real = conductor.substring(12);
+    dataCond.clear();
+    var response1 = await http.get(
+        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=transportistasviajes&conductor=$conductor_real"),
+        headers: {"Accept": "application/json"});
+    setState(() {
+      extraerData1 = json.decode(response1.body);
+      print("PRUEBAAAA: ----"+extraerData1.toString());
+      dataCond = extraerData1["datos"];
+      idviajeconductor = dataCond[0]["IDVIAJES"];
+      //  databarras = consumidores;
+    });
+  }
+
+
   @override
   void initState() {
     barcode.FlutterMobileVision.start().then((value) {});
     setState(() {
       isInitialized = true;
+      recibirViajes();
+     // recibirViajesconductor(widget.title.toString() == null ? '0' : widget.title.toString());
     });
     super.initState();
   }
@@ -201,6 +249,71 @@ class _RegistroViajeAdmState extends State<RegistroViajeAdm> {
                       style: const TextStyle(
                         fontSize: 18.0,
                         fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 10.0),
+                  //  widget.title!.contains('LIBRE') ?
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: <Widget>[
+                          Align(
+                            alignment: Alignment.bottomLeft,
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 5),
+                              decoration: BoxDecoration(
+                                color: kDarkSecondaryColor,
+                                shape: BoxShape.rectangle,
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              child: TextButton(
+                                  onPressed: () {
+                                    print("IDACOPIO: " + widget.idacopio!);
+                                    recibirViajes();
+                                    //if(databarras.isNotEmpty){
+                                    /*recibirDatosBarras(
+                                        int.parse(widget.idacopio!));*/
+                                    // }
+
+                                  },
+                                  child: const Icon(Icons.car_rental,
+                                      color: Colors.white)),
+                            ),
+                          ),
+                          const SizedBox(width: 10.0),
+                          dataViajes != null
+                              ? DropdownButton<String>(
+                            value: dropdownValueViaje,
+                            icon: const Icon(Icons.arrow_downward),
+                            iconSize: 24,
+                            elevation: 16,
+                            hint: const Text(
+                                'Selecciona el conductor'),
+                            style:
+                            const TextStyle(color: Colors.deepPurple),
+                            underline: Container(
+                              height: 2,
+                              color: Colors.deepPurpleAccent,
+                            ),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                dropdownValueViaje = newValue;
+                                _value = dropdownValueViaje;
+                               /* cargarVariedades(
+                                    _value == null ? '' : _value!);*/
+                              });
+                            },
+                            items: dataViajes.map((list) {
+                              return DropdownMenuItem(
+                                value: list['IDVIAJES'].toString(),
+                                child: Text(list['NAME']),
+                              );
+                            }).toList(),
+                          )
+                              : const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 10.0),
@@ -805,7 +918,10 @@ class _RegistroViajeAdmState extends State<RegistroViajeAdm> {
                                 onPressed: () async {
                                   // if (_formKey.currentState.validate()) {
                                   if (_value == "Código de válvula") {
-                                    _mensaje = "Debe leer el código de válvula";
+                                  _mensaje = "Debe leer el código de válvula";
+                                  _mensajesValidaciones(_mensaje!);
+                                  }else if(idviajeconductor == 0 || idviajeconductor == null){
+                                    _mensaje = "El viaje no se mostro ";
                                     _mensajesValidaciones(_mensaje!);
                                   } else {
                                     DateTime now = DateTime.now();
@@ -813,7 +929,7 @@ class _RegistroViajeAdmState extends State<RegistroViajeAdm> {
                                     var response = await DatabaseProvider.db
                                         .addJabasToDatabase(Jabas(
                                             idviaje:
-                                                int.parse(widget.idviajes!),
+                                               int.parse(dropdownValueViaje.toString()),
                                             lat: widget.latitud ?? '00.000000',
                                             long:
                                                 widget.longitud ?? '00.000000',
@@ -878,6 +994,7 @@ class _RegistroViajeAdmState extends State<RegistroViajeAdm> {
                                     print("sincronización: $response");
                                     if (response > 0) {
                                       Navigator.pop(context);
+
                                     } else {
                                       showDialog(
                                           context: context,
@@ -937,204 +1054,7 @@ class _RegistroViajeAdmState extends State<RegistroViajeAdm> {
   }
 }
 
-class CustomDialogsBuscar extends StatefulWidget {
-  final String? title, description, imagen, idviajes, idlugar;
-  const CustomDialogsBuscar(
-      {Key? key,
-      this.title,
-      this.description,
-      this.imagen,
-      this.idviajes,
-      this.idlugar})
-      : super(key: key);
 
-  @override
-  _CustomDialogsBuscarState createState() => _CustomDialogsBuscarState();
-}
-
-class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
-  String? dropdownValue;
-  // ignore: prefer_typing_uninitialized_variables
-  var dataacopio;
-  List? data;
-  Future<void> recibirDatos() async {
-    // ignore: prefer_typing_uninitialized_variables
-    String codigoviajes = widget.idviajes ?? '0';
-    String codigolugar = widget.idlugar ?? '0';
-    var extraerData;
-    var response = await http.get(
-        Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=detallebarras&idviajes=$codigoviajes&idlugar=$codigolugar"),
-        headers: {"Accept": "application/json"});
-    setState(() {
-      extraerData = json.decode(response.body);
-      data = extraerData["datos"];
-      dataacopio = json.encode(extraerData["datos"]);
-      print("DATAACOPIO: " + dataacopio.toString());
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    recibirDatos();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-      elevation: 0,
-      backgroundColor: Colors.white,
-      child: dialogContents(context),
-    );
-  }
-
-  dialogContents(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Container(
-          padding: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
-          margin: const EdgeInsets.only(top: 20),
-          decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(50),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 10.0,
-                  offset: Offset(0.0, 10.0),
-                )
-              ]),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Image.asset(
-                widget.imagen!,
-                width: 64,
-                height: 64,
-              ),
-              const SizedBox(height: 20.0),
-              Text(
-                widget.title!,
-                style: const TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const Divider(),
-              const SizedBox(height: 10.0),
-              Text(
-                widget.description!,
-                style: const TextStyle(fontSize: 15.0),
-                //textAlign: TextAlign.justify,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              data != null
-                  ? DropdownButton<String>(
-                      value: dropdownValue,
-                      icon: const Icon(Icons.arrow_downward),
-                      iconSize: 24,
-                      elevation: 16,
-                      hint: const Text('Selecciona el codigo de barras'),
-                      style: const TextStyle(color: Colors.deepPurple),
-                      /*underline: Container(
-                        height: 2,
-                        color: Colors.deepPurpleAccent,
-                      ),*/
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          dropdownValue = newValue;
-                        });
-                      },
-                      items: data!.map((list) {
-                        return DropdownMenuItem(
-                          value: list['CONS'].toString(),
-                          child: Text(list['CONS']),
-                        );
-                      }).toList(),
-                    )
-                  : const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-              const SizedBox(height: 24.0),
-              Row(
-                children: <Widget>[
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: kPrimaryColor,
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(50),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 10.0,
-                              offset: Offset(0.0, 10.0),
-                            )
-                          ]),
-                      child: TextButton(
-                          onPressed: () async {
-                            print(
-                                "VALOR DROPDOWN: " + dropdownValue.toString());
-                            // ignore: unnecessary_null_comparison
-                            if (dropdownValue == null) {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) =>
-                                      const CustomDialogsActividad(
-                                          title: "MENSAJE",
-                                          description:
-                                              'Debes Seleccionar la válvula a cargar',
-                                          imagen: "assets/images/warning.png"));
-                            } else {}
-                          },
-                          child: const Text(
-                            "Confirmar",
-                            style: TextStyle(color: Colors.white),
-                          )),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: kDarkSecondaryColor,
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(50),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 10.0,
-                              offset: Offset(0.0, 10.0),
-                            )
-                          ]),
-                      child: TextButton(
-                          //color: kArandano,
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text(
-                            "Cancelar",
-                            style: TextStyle(color: Colors.white),
-                          )),
-                    ),
-                  ),
-                ],
-              )
-            ],
-          ),
-        )
-      ],
-    );
-  }
-}
 
 class CustomDialogsActividad extends StatelessWidget {
   final String? title, description, buttontext, imagen;
