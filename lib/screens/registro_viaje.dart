@@ -137,6 +137,7 @@ class _RegistroViajeState extends State<RegistroViaje> {
                             )));
                   });
               DateTime now = DateTime.now();
+              print("idviajes: "+widget.idviajes.toString());
               await DatabaseProvider.db
                   .addJabasToDatabase(Jabas(
                   idviaje:

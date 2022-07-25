@@ -57,6 +57,7 @@ class MyBottomNavBar extends StatelessWidget {
                   await SharedPreferences.getInstance();
                   String placageneral = (prefs.get("placa") ?? "0") as String;
                   if(placageneral.contains("ADM")){
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -75,7 +76,7 @@ class MyBottomNavBar extends StatelessWidget {
             },
             backgroundColor: kPrimaryColor,
             child:  Icon(
-              (placa.toString() ?? '-').contains('ADM') ?
+              (placa?.toString() == null ? '-' : placa.toString()).contains('ADM') ?
               Icons.map : Icons.search,
               color: Colors.white,
             ),
@@ -204,6 +205,96 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
         //  print("RESULTADO: " + result.toString());
       });
     }
+  }
+
+  Future<String?>crearViaje() async{
+    var resultate;
+    var response = await http.post(
+        Uri.parse("${url_base}acp/index.php/transportearandano/setViaje"),
+        body: {
+          // "accion": "viaje",
+          "idtransp": idtransp,
+          "tbox": "0",
+          "tdistance": "0.00",
+          "estado": "0",
+          "ruta": "-",
+          "vehiculo": placa.toString(),
+        });
+   // if (mounted) {
+    //  setState(() {
+        print("RESPONSE BODY: ${response.body}");
+
+        var extraerData = json.decode(response.body);
+         resultate = extraerData["state"];
+        print("RESULTADO DE INSERCIÓN: ${resultate}");
+    //  });
+   // }
+  if( int.parse(resultate) >= 0) {
+    int total = 0;
+    var ddData = [];
+    var ddacopios = [];
+    int cantidad_jabas = 0;
+    for (var i = 0; i < data!.length; i++) {
+      cantidad_jabas = int.parse(data![i]["CANTIDAD_JABAS"]);
+      if (total <= capacidad! && cantidad_jabas > 0) {
+        total += cantidad_jabas;
+        print("CAPACIDAD$capacidad ,CANT JABAS$cantidad_jabas");
+        if (total > 0) {
+          var objeto = {"ALIAS": data![i]["ALIAS"]};
+          ddData.add(objeto);
+
+          var acopiosViaje = {
+            // Le agregas la fecha
+            "ALIAS": data![i]["ALIAS"],
+            "CANTIDAD_JABAS": data![i]["CANTIDAD_JABAS"],
+            "LATITUD": data![i]["LATITUD"],
+            "LONGITUD": data![i]["LONGITUD"],
+            "SALDO":
+            capacidad! >= cantidad_jabas ? cantidad_jabas : capacidad
+          };
+          ddacopios.add(acopiosViaje);
+          print("DATAACOPIO$ddacopios");
+        }
+      }
+    }
+
+    var resultdetail;
+    for (var i = 0; i < ddacopios.length; i++) {
+      var responsedetail = await http.get(
+          Uri.parse("${"${url_base +
+              "acp/index.php/transportearandano/setViajeDetail?accion=viajedetail&idviajes=" +
+              resultate +
+              "&alias=" +
+              ddacopios[i]["ALIAS"] +
+              "&latitud=" +
+              ddacopios[i]["LATITUD"] +
+              "&longitud=" +
+              ddacopios[i]["LONGITUD"]}&cantjabas=" +
+              ddacopios[i]["CANTIDAD_JABAS"]}&jabascargadas=0"),
+          headers: {"Accept": "application/json"});
+      //if (mounted) {
+      //  setState(() {
+          var extraerData2 = json.decode(responsedetail.body);
+          resultdetail = extraerData2["state"];
+          print("RESULTADO DE DETALLE: $resultdetail");
+     //   });
+    //  }
+      if(resultdetail.toString().contains("true")){
+        await atualizarAcopios(ddacopios[i]["ALIAS"], 0);
+      }
+
+    }
+    String dato = "";
+    //Navigator.pop(context);
+        if(resultdetail.toString().contains("true")){
+          dato = resultate;
+        }else{
+          dato =  "-";
+        }
+      return dato;
+
+  }
+
   }
 
   @override
@@ -373,9 +464,8 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                               if (actividad == "LIBRE") {
                                 moduloselect = dropdownValue.toString().substring(7);
                                 _guardarModulo(moduloselect!);
-                                await recibirDatos(moduloselect!
-                                    );
-                                setState(() {
+                                await recibirDatos(moduloselect!);
+                              //  setState(() {
                                 print("ESTADO NULL: $data");
                                 if(data!.isEmpty) {
                                     showDialog(
@@ -389,21 +479,136 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                                     "assets/images/warning.png"));
                                    // Navigator.pop(context);
                                 }else{
-                                    Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          GMap(
-                                              data: data!,
-                                              dataacopio: dataacopio,
-                                              latinicial: latitudes!,
-                                              longinicial: longitudes!,
-                                              aliasinicial: aliasinicial!,
-                                              moduloselect: moduloselect!),
-                                    ),
-                                  );
+                                 /* showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        Size size = MediaQuery.of(context).size;
+                                        return Center(
+                                            child: AlertDialog(
+                                                backgroundColor: Colors.transparent,
+                                                content: Container(
+                                                  color: Colors.white,
+                                                  height: size.height / 7,
+                                                  padding: const EdgeInsets.all(20),
+                                                  child: Column(children: const <Widget>[
+                                                    CircularProgressIndicator(),
+                                                    SizedBox(height: 5),
+                                                    Text("Creando viaje")
+                                                  ]),
+                                                )));
+                                      });*/
+
+                                      String? idviajeresultado = "-";
+
+                                      var resultate;
+                                      var response = await http.post(
+                                          Uri.parse("${url_base}acp/index.php/transportearandano/setViaje"),
+                                          body: {
+                                            // "accion": "viaje",
+                                            "idtransp": idtransp,
+                                            "tbox": "0",
+                                            "tdistance": "0.00",
+                                            "estado": "0",
+                                            "ruta": "-",
+                                            "vehiculo": placa.toString(),
+                                          });
+                                      // if (mounted) {
+                                      //  setState(() {
+                                      print("RESPONSE BODY: ${response.body}");
+
+                                      var extraerData = json.decode(response.body);
+                                      resultate = extraerData["state"];
+                                      print("RESULTADO DE INSERCIÓN: ${resultate}");
+                                      //  });
+                                      // }
+                                      String? dato;
+                                      if( int.parse(resultate) >= 0) {
+                                        int total = 0;
+                                        var ddData = [];
+                                        var ddacopios = [];
+                                        int cantidad_jabas = 0;
+                                        for (var i = 0; i < data!.length; i++) {
+                                          cantidad_jabas = int.parse(data![i]["CANTIDAD_JABAS"]);
+                                          if (total <= capacidad! && cantidad_jabas > 0) {
+                                            total += cantidad_jabas;
+                                            print("CAPACIDAD$capacidad ,CANT JABAS$cantidad_jabas");
+                                            if (total > 0) {
+                                              var objeto = {"ALIAS": data![i]["ALIAS"]};
+                                              ddData.add(objeto);
+
+                                              var acopiosViaje = {
+                                                // Le agregas la fecha
+                                                "ALIAS": data![i]["ALIAS"],
+                                                "CANTIDAD_JABAS": data![i]["CANTIDAD_JABAS"],
+                                                "LATITUD": data![i]["LATITUD"],
+                                                "LONGITUD": data![i]["LONGITUD"],
+                                                "SALDO":
+                                                capacidad! >= cantidad_jabas ? cantidad_jabas : capacidad
+                                              };
+                                              ddacopios.add(acopiosViaje);
+                                              print("DATAACOPIO$ddacopios");
+                                            }
+                                          }
+                                        }
+
+                                        var resultdetail;
+                                        for (var i = 0; i < ddacopios.length; i++) {
+                                          var responsedetail = await http.get(
+                                              Uri.parse("${"${url_base +
+                                                  "acp/index.php/transportearandano/setViajeDetail?accion=viajedetail&idviajes=" +
+                                                  resultate +
+                                                  "&alias=" +
+                                                  ddacopios[i]["ALIAS"] +
+                                                  "&latitud=" +
+                                                  ddacopios[i]["LATITUD"] +
+                                                  "&longitud=" +
+                                                  ddacopios[i]["LONGITUD"]}&cantjabas=" +
+                                                  ddacopios[i]["CANTIDAD_JABAS"]}&jabascargadas=0"),
+                                              headers: {"Accept": "application/json"});
+                                          //if (mounted) {
+                                          //  setState(() {
+                                          var extraerData2 = json.decode(responsedetail.body);
+                                          resultdetail = extraerData2["state"];
+                                          print("RESULTADO DE DETALLE: $resultdetail");
+                                          //   });
+                                          //  }
+                                          if(resultdetail.toString().contains("true")){
+                                            await atualizarAcopios(ddacopios[i]["ALIAS"], 0);
+                                          }
+
+                                        }
+
+                                        //Navigator.pop(context);
+                                        if(resultdetail.toString().contains("true")){
+                                          dato = resultate;
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  GMap(
+                                                      data: data!,
+                                                      dataacopio: dataacopio,
+                                                      latinicial: latitudes!,
+                                                      longinicial: longitudes!,
+                                                      aliasinicial: aliasinicial!,
+                                                      moduloselect: moduloselect!,
+                                                      idviajeactual: dato!),
+                                            ),
+                                          );
+                                        }
+
+
+                                      }
+
+                                      /*await crearViaje().then((resultate) async{
+                                        idviajeresultado = resultate;
+                                      });*/
+
+                                  //Navigator.pop(context);
+
+
                                 }
-                                });
+                             //   });
                               } else {
                                 showDialog(
                                     context: context,

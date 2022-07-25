@@ -43,7 +43,7 @@ int? jabas_moment = 0;
 var extraerData1;
 List? datapunto;
 int? cantidad_jabas_actual;
-String? codigoviaje;
+//String? codigoviaje;
 String? name;
 int? jabasporlimpiare = 0;
 int jabasporlimpiar = 0;
@@ -171,6 +171,7 @@ class GMap extends StatefulWidget {
   String? aliasinicial;
   double? longinicial;
   String? moduloselect;
+  String? idviajeactual;
   GMap(
       {Key? key,
       this.dataacopio,
@@ -178,7 +179,8 @@ class GMap extends StatefulWidget {
       this.latinicial,
       this.longinicial,
       this.aliasinicial,
-      this.moduloselect})
+      this.moduloselect,
+      this.idviajeactual})
       : super(key: key);
 
   @override
@@ -208,7 +210,7 @@ class _GMapState extends State<GMap> {
   BitmapDescriptor? _markerIcon2;
   List? data1;
   List? areas;
-  var result;
+  //var result;
   String? distancia;
   String estadoinsert = "sin terminar";
   int estado = 0;
@@ -246,13 +248,13 @@ class _GMapState extends State<GMap> {
     });
   }
 
-  _obtenerCodigoVehiculo() async {
+  /*_obtenerCodigoVehiculo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       codigoviaje = (prefs.get("idviaje") ?? "0") as String?;
       print('idviaje: $codigoviaje');
     });
-  }
+  }*/
 
   FlutterIsolate? isolate;
   FlutterIsolate? isolate2;
@@ -302,13 +304,13 @@ class _GMapState extends State<GMap> {
 
   Future<void> subirJabas() async {
     Timer.periodic(const Duration(minutes: 1), (Timer timer) async {
-       saveBoxAcopios(result, modinicial!,activaracopiosrestantes!);
+       saveBoxAcopios(widget.idviajeactual!, modinicial!,activaracopiosrestantes!);
 
      // -------------------------- acopios mapeados------------------
 
       var cantidadrestada = 0;
       DatabaseProvider.db
-          .getCantidadAcopios(int.parse(result))
+          .getCantidadAcopios(int.parse(widget.idviajeactual!))
           .then((List<Acopios> acopios) async {
 
         for (var i = 0; i < acopios.length; i++) {
@@ -316,7 +318,7 @@ class _GMapState extends State<GMap> {
           print("JABAS ACTUALES: ${acopios[i].alias!} jabas: ${acopios[i].cantidadjabas}");
 
          DatabaseProvider.db
-              .getJabasWithId(int.parse(result), acopios[i].alias!)
+              .getJabasWithId(int.parse(widget.idviajeactual!), acopios[i].alias!)
               .then((List<Jabas> jabas) async {
 
             if (jabas[0].jabascargadas != null) {
@@ -356,7 +358,7 @@ class _GMapState extends State<GMap> {
                                 longitud: acopios[i].longitud!,
                                 idacopio: acopios[i].idlugar.toString(),
                                 // area: data[i]["AREA"],
-                                idviajes: result.toString(),
+                                idviajes: widget.idviajeactual!,
                                 tipoacopio: '-',
                               ),
                         ),
@@ -393,7 +395,7 @@ class _GMapState extends State<GMap> {
                                 longitud: acopios[i].longitud!,
                                 idacopio: acopios[i].idlugar.toString(),
                                 // area: data[i]["AREA"],
-                                idviajes: result.toString(),
+                                idviajes: widget.idviajeactual!,
                                 tipoacopio: '-',
                               ),
                         ),
@@ -416,7 +418,7 @@ class _GMapState extends State<GMap> {
           print("JABAS ACTUALES: ${acopiosrestantes[i].alias!} jabas: ${acopiosrestantes[i].cantidadjabas}");
 
           DatabaseProvider.db
-              .getJabasWithId(int.parse(result), acopiosrestantes[i].alias!)
+              .getJabasWithId(int.parse(widget.idviajeactual!), acopiosrestantes[i].alias!)
               .then((List<Jabas> jabas) async {
 
             if (jabas[0].jabascargadas != null) {
@@ -468,7 +470,7 @@ class _GMapState extends State<GMap> {
                                   idacopio: acopiosrestantes[i].idlugar
                                       .toString(),
                                   // area: data[i]["AREA"],
-                                  idviajes: result.toString(),
+                                  idviajes: widget.idviajeactual!,
                                   tipoacopio: '-',
                                 ),
                           ),
@@ -515,7 +517,7 @@ class _GMapState extends State<GMap> {
                                   idacopio: acopiosrestantes[i].idlugar
                                       .toString(),
                                   // area: data[i]["AREA"],
-                                  idviajes: result.toString(),
+                                  idviajes: widget.idviajeactual!,
                                   tipoacopio: '-',
                                 ),
                           ),
@@ -537,7 +539,7 @@ class _GMapState extends State<GMap> {
             "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><SOLICITUD_DESTINO>";
         String itemXml = "";
         DatabaseProvider.db
-            .getJabasWithoutAlias2(int.parse(result))
+            .getJabasWithoutAlias2(int.parse(widget.idviajeactual!))
             .then((List<Jabas> jabas) {
         //  if (jabas.isNotEmpty) {
             for (var i = 0; i < jabas.length; i++) {
@@ -572,17 +574,17 @@ class _GMapState extends State<GMap> {
             String xml2 = cabeceraXml + itemXml + pieXml;
             print("XML CARGADO$xml2");
           xmlViajesAcopio.write(xml2);
-          print('idviaje: ' + result);
+          print('idviaje: ' + widget.idviajeactual!);
           print("ALIAS: $ddData");
           if(itemXml != ""){
 
-            saveBox(xmlViajesAcopio.toString(), ddData, result);
+            saveBox(xmlViajesAcopio.toString(), ddData, widget.idviajeactual!);
           }
 
         });
 
         DatabaseProvider.db
-            .getJabasSubidas(int.parse(result))
+            .getJabasSubidas(int.parse(widget.idviajeactual!))
             .then((List<Jabas> jabasenviadas) {
           for (var i = 0; i < jabasenviadas.length; i++) {
             if(jabasenviadas[i].jabascargadas != null) {
@@ -631,7 +633,7 @@ class _GMapState extends State<GMap> {
 
     if (double.parse(placeDistance.toStringAsFixed(2)) <=
         500) {
-      String codigov = result.toString() ?? '0';
+      String codigov = widget.idviajeactual! ?? '0';
       var response = await http.get(
           Uri.parse("${url_base}acp/index.php/transportearandano/setTravelUpdate?accion=estadoViaje&idviajes=$codigov&tipo=1"),
           headers: {"Accept": "application/json"});
@@ -695,7 +697,7 @@ class _GMapState extends State<GMap> {
             "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><SOLICITUD_DESTINO>";
         String itemXml = "";
         DatabaseProvider.db
-            .getJabasWithoutAlias2(int.parse(result))
+            .getJabasWithoutAlias2(int.parse(widget.idviajeactual!))
             .then((List<Jabas> jabas) async{
           for (var i = 0; i < jabas.length; i++) {
             if(jabas[i].jabascargadas != null) {
@@ -732,7 +734,7 @@ class _GMapState extends State<GMap> {
               if (resulte.isNotEmpty && resulte[0].rawAddress.isNotEmpty) {
                 String xml = xmlViajesAcopio.toString();
                 List dData = ddData;
-                String idviajesrestult = result.toString();
+                String idviajesrestult = widget.idviajeactual!;
                 String results;
                 HttpOverrides.global = MyHttpOverrides();
                 var response = await http.post(
@@ -942,7 +944,7 @@ class _GMapState extends State<GMap> {
           int cantidadJabasRestantes = int.parse(
               datapunto![i]["CANTIDAD_JABAS"]);
           DatabaseProvider.db
-              .getJabasWithId(int.parse(result), datapunto![i]["ALIAS"])
+              .getJabasWithId(int.parse(widget.idviajeactual!), datapunto![i]["ALIAS"])
               .then((List<Jabas> jabas) async {
             cantidadrestada =
             jabas[0].jabascargadas == null ? 0 : jabas[0].jabascargadas!;
@@ -986,7 +988,7 @@ class _GMapState extends State<GMap> {
                                   longitud: datapunto![i]["LONGITUD"],
                                   idacopio: datapunto![i]["IDACOPIO"],
                                   // area: data[i]["AREA"],
-                                  idviajes: result.toString(),
+                                  idviajes: widget.idviajeactual!,
                                   tipoacopio: '-',
                                 ),
                           ),
@@ -1029,7 +1031,7 @@ class _GMapState extends State<GMap> {
                                   longitud: datapunto![i]["LONGITUD"],
                                   idacopio: datapunto![i]["IDACOPIO"],
                                   // area: data[i]["AREA"],
-                                  idviajes: result.toString(),
+                                  idviajes: widget.idviajeactual!,
                                   tipoacopio: '-',
                                 ),
                           ),
@@ -1082,7 +1084,7 @@ class _GMapState extends State<GMap> {
     try{
     var response = await http.get(
         Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=acopiosmapeados&idviajes=" +
-            result),
+            widget.idviajeactual!),
         headers: {"Accept": "application/json"}).timeout(const Duration(seconds: 15));
     if (mounted) {
       setState(() {
@@ -1092,7 +1094,7 @@ class _GMapState extends State<GMap> {
           int cantidadJabasRestantes =
               int.parse(acopiosmapeados![i]["CANTIDAD_JABAS"]);
           DatabaseProvider.db
-              .getJabasWithId(int.parse(result), acopiosmapeados![i]["ALIAS"])
+              .getJabasWithId(int.parse(widget.idviajeactual!), acopiosmapeados![i]["ALIAS"])
               .then((List<Jabas> jabas) async {
 
             if (jabas[0].jabascargadas != null) {
@@ -1129,7 +1131,7 @@ class _GMapState extends State<GMap> {
                             longitud: acopiosmapeados![i]["LONGITUD"],
                             idacopio: acopiosmapeados![i]["IDLUGAR"],
                             // area: data[i]["AREA"],
-                            idviajes: result.toString(),
+                            idviajes: widget.idviajeactual!,
                             tipoacopio: '-',
                           ),
                         ),
@@ -1164,7 +1166,7 @@ class _GMapState extends State<GMap> {
                             longitud: acopiosmapeados![i]["LONGITUD"],
                             idacopio: acopiosmapeados![i]["IDLUGAR"],
                             // area: data[i]["AREA"],
-                            idviajes: result.toString(),
+                            idviajes: widget.idviajeactual!,
                             tipoacopio: '-',
                           ),
                         ),
@@ -1192,10 +1194,10 @@ class _GMapState extends State<GMap> {
 
   Future<void> recibirDatos() async {
     int total = 0;
-    var resultdetail;
+    //var resultdetail;
     var ddData = [];
-    String actividad = "";
-    var ddacopios = [];
+    //String actividad = "";
+   // var ddacopios = [];
     modinicial = widget.moduloselect!;
     mediaIcon = await BitmapDescriptor.fromAssetImage(
         const ImageConfiguration(devicePixelRatio: 2),
@@ -1205,7 +1207,7 @@ class _GMapState extends State<GMap> {
         'assets/images/arandano_marker.png');
 
     //if (total > 0) {
-    var responsess = await http.get(
+    /*var responsess = await http.get(
         Uri.parse("${url_base}WSPowerBI/controller/transportearandano.php?accion=estadoviaje&idtransp=${idtransp!}"),
         headers: {"Accept": "application/json"});
     if (mounted) {
@@ -1214,11 +1216,11 @@ class _GMapState extends State<GMap> {
         dataestado = extraerData["datos"];
         actividad = dataestado![0]["actividad"];
       });
-    }
-    print("ESTADO RUTEO: $actividad TRANSP. ${idtransp!}");
+    }*/
+   // print("ESTADO RUTEO: $actividad TRANSP. ${idtransp!}");
 
-    if (actividad == "LIBRE") {
-      var response = await http.post(
+    //if (actividad == "LIBRE") {
+     /* var response = await http.post(
           Uri.parse("${url_base}acp/index.php/transportearandano/setViaje"),
           body: {
             // "accion": "viaje",
@@ -1238,7 +1240,7 @@ class _GMapState extends State<GMap> {
           print("RESULTADO DE INSERCIÓN: ${extraerData["state"]}");
           _guardarIdviaje(extraerData["state"].toString());
         });
-      }
+      }*/
       for (var i = 0; i < widget.data!.length; i++) {
         var bitmapData =
             await _createAvatar(80, 90, widget.data![i]["CANTIDAD_JABAS"]);
@@ -1253,6 +1255,7 @@ class _GMapState extends State<GMap> {
                     double.parse(widget.data![i]["LONGITUD"])),
                 icon: bitmapDescriptor,
                 onTap: () {
+                  print("VIAJE ACTUAL: ${widget.idviajeactual}");
                   setState((){
                     Navigator.push(
                       context,
@@ -1268,7 +1271,7 @@ class _GMapState extends State<GMap> {
                           longitud: widget.data![i]["LONGITUD"],
                           idacopio: widget.data![i]["IDACOPIO"],
                           // area: data[i]["AREA"],
-                          idviajes: result,
+                          idviajes: widget.idviajeactual.toString(),
                           tipoacopio: '-',
                         ),
                       ),
@@ -1283,7 +1286,7 @@ class _GMapState extends State<GMap> {
             var objeto = {"ALIAS": widget.data![i]["ALIAS"]};
             ddData.add(objeto);
 
-            var acopiosViaje = {
+            /*  var acopiosViaje = {
               // Le agregas la fecha
               "ALIAS": widget.data![i]["ALIAS"],
               "CANTIDAD_JABAS": widget.data![i]["CANTIDAD_JABAS"],
@@ -1293,12 +1296,12 @@ class _GMapState extends State<GMap> {
                   capacidad! >= cantidad_jabas! ? cantidad_jabas : capacidad
             };
             ddacopios.add(acopiosViaje);
-            print("DATAACOPIO$ddacopios");
+            print("DATAACOPIO$ddacopios");*/
           }
         }
       }
 
-        for (var i = 0; i < ddacopios.length; i++) {
+       /* for (var i = 0; i < ddacopios.length; i++) {
           var responsedetail = await http.get(
               Uri.parse("${"${url_base +
                   "acp/index.php/transportearandano/setViajeDetail?accion=viajedetail&idviajes=" +
@@ -1319,7 +1322,7 @@ class _GMapState extends State<GMap> {
             });
           }
           atualizarAcopios(ddacopios[i]["ALIAS"], 0);
-        }
+        }*/
 
 
       var inicio = widget.aliasinicial;
@@ -1360,7 +1363,7 @@ class _GMapState extends State<GMap> {
           }
         });
       }
-    }
+   // }
 
   }
 
@@ -1433,7 +1436,7 @@ class _GMapState extends State<GMap> {
         });
     var response = await http.get(
         Uri.parse("${url_base}acp/index.php/transportearandano/setReinicioAcopios?accion=reinicio&idviajes=" +
-            result),
+            widget.idviajeactual!),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
@@ -1449,7 +1452,7 @@ class _GMapState extends State<GMap> {
     // print("ALIAS ESTADO: " + pacopios);
     var response = await http.get(
         Uri.parse("${url_base}acp/index.php/transportearandano/setReinicioAcopiosSinUso?accion=reiniciosinuso&idviajes=" +
-            result),
+            widget.idviajeactual!),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
@@ -1464,7 +1467,7 @@ class _GMapState extends State<GMap> {
     print("ALIAS ESTADO: $alias");
     var response = await http.get(
         Uri.parse("${"${url_base}acp/index.php/transportearandano/setReinicioAcopiosIndividual?accion=reinicioindividual&idviajes=" +
-            result}&alias=$alias"),
+            widget.idviajeactual!}&alias=$alias"),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
@@ -1511,7 +1514,7 @@ class _GMapState extends State<GMap> {
   Future<void> guardarRuta(double latitud, double longitud) async {
     var response = await http.get(
         Uri.parse("${"${url_base}acp/index.php/transportearandano/setGuardarRutas?accion=saverutas&idviajes=" +
-            result}&latitud=$latitud&longitud=$longitud"),
+            widget.idviajeactual!}&latitud=$latitud&longitud=$longitud"),
         headers: {"Accept": "application/json"});
     if (mounted) {
       setState(() {
@@ -1773,7 +1776,7 @@ class _GMapState extends State<GMap> {
                         idacopio: jabaindividual![i]["IDLUGAR"],
                         latitud: jabaindividual![i]["LATITUD"],
                         longitud: jabaindividual![i]["LONGITUD"],
-                        idviajes: result.toString(),
+                        idviajes: widget.idviajeactual!,
                         tipoacopio: '-',
                       ),
                     ),
@@ -1794,7 +1797,7 @@ class _GMapState extends State<GMap> {
                         latitud: jabaindividual![i]["LATITUD"],
                         longitud: jabaindividual![i]["LONGITUD"],
                         // area: data[i]["AREA"],
-                        idviajes: result.toString(),
+                        idviajes: widget.idviajeactual!,
                         tipoacopio: '-',
                       ),
                     ),
@@ -2297,7 +2300,7 @@ class _GMapState extends State<GMap> {
                               estadoinsert = "terminado";
                               String results ="";
                               //_obtenerCodigoVehiculo();
-                              String codigov = result.toString() ?? '0';
+                              String codigov = widget.idviajeactual! ?? '0';
                               try{
                               var response = await http.get(
                                   Uri.parse("${url_base}acp/index.php/transportearandano/setTravelUpdate?accion=estadoViaje&idviajes=$codigov&tipo=1"),
