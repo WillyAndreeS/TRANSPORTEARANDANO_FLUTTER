@@ -228,6 +228,15 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
     prefs.setInt("capacidad_vehiculo", capacidadVehiculo);
     prefs.setString("placa", placa.toString());
   }
+  _guardarEstadoSync(int syncr) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt("syncr", syncr);
+  }
+
+  _cargarSync() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    estadoSincronizacion = prefs.getInt("syncr");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -353,7 +362,8 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
                             Widget okButton = TextButton(
                               child: const Text("OK"),
                               onPressed: () {
-                                estadoSincronizacion = 1;
+                                //estadoSincronizacion = 1;
+                                _guardarEstadoSync(1);
                                 Navigator.pop(context);
                               },
                             );
@@ -366,11 +376,12 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
                                               'Sincronización correcta'),
                                           actions: [okButton]));
                                 });
+
                           } else {
                             Widget okButton = TextButton(
                               child: const Text("OK"),
                               onPressed: () {
-                                estadoSincronizacion = 0;
+                                //estadoSincronizacion = 0;
                                 Navigator.pop(context);
                               },
                             );
@@ -463,7 +474,8 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
                   btnText: "INGRESAR",
                   colors: kPrimaryColor,
                 ),
-                onTap: () {
+                onTap: () async{
+                   await _cargarSync();
                   if (estadoSincronizacion == 1) {
                     if (myController.text.length == 8) {
                       String dni = myController.text;
@@ -510,7 +522,7 @@ class FeaturePlantCardState extends State<FeaturePlantCard> {
                     Widget okButton = TextButton(
                       child: const Text("OK"),
                       onPressed: () {
-                        estadoSincronizacion = 1;
+                        //estadoSincronizacion = 1;
                         Navigator.pop(context);
                       },
                     );

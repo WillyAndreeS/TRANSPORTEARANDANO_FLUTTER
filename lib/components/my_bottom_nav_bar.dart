@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_typing_uninitialized_variables, deprecated_member_use
+
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -11,12 +11,14 @@ import '../constants.dart';
 
 String? moduloselect;
 class MyBottomNavBar extends StatelessWidget {
-  const MyBottomNavBar({
+   const MyBottomNavBar({
     Key? key,
   }) : super(key: key);
 
+
   @override
   Widget build(BuildContext context) {
+
     return Container(
       padding: const EdgeInsets.only(
         left: kDefaultPadding * 2,
@@ -126,11 +128,13 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
   String? actividad;
   var ddData = [];
   String? idtransp;
+  String dato ="";
 
   _guardarModulo(String modulo) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString("modulo", modulo);
   }
+
 
   Future<void> recibirDatos(
     String modulo,
@@ -207,7 +211,25 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
     }
   }
 
-  Future<String?>crearViaje() async{
+  Future<void>crearViaje() async{
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          Size size = MediaQuery.of(context).size;
+          return Center(
+              child: AlertDialog(
+                  backgroundColor: Colors.transparent,
+                  content: Container(
+                    color: Colors.white,
+                    height: size.height / 7,
+                    padding: const EdgeInsets.all(20),
+                    child: Column(children: const <Widget>[
+                      CircularProgressIndicator(),
+                      SizedBox(height: 5),
+                      Text("Creando Viaje")
+                    ]),
+                  )));
+        });
     var resultate;
     var response = await http.post(
         Uri.parse("${url_base}acp/index.php/transportearandano/setViaje"),
@@ -284,14 +306,13 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
       }
 
     }
-    String dato = "";
-    //Navigator.pop(context);
+    Navigator.pop(context);
         if(resultdetail.toString().contains("true")){
           dato = resultate;
         }else{
           dato =  "-";
         }
-      return dato;
+
 
   }
 
@@ -479,108 +500,12 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                                     "assets/images/warning.png"));
                                    // Navigator.pop(context);
                                 }else{
-                                 /* showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        Size size = MediaQuery.of(context).size;
-                                        return Center(
-                                            child: AlertDialog(
-                                                backgroundColor: Colors.transparent,
-                                                content: Container(
-                                                  color: Colors.white,
-                                                  height: size.height / 7,
-                                                  padding: const EdgeInsets.all(20),
-                                                  child: Column(children: const <Widget>[
-                                                    CircularProgressIndicator(),
-                                                    SizedBox(height: 5),
-                                                    Text("Creando viaje")
-                                                  ]),
-                                                )));
-                                      });*/
 
-                                      String? idviajeresultado = "-";
 
-                                      var resultate;
-                                      var response = await http.post(
-                                          Uri.parse("${url_base}acp/index.php/transportearandano/setViaje"),
-                                          body: {
-                                            // "accion": "viaje",
-                                            "idtransp": idtransp,
-                                            "tbox": "0",
-                                            "tdistance": "0.00",
-                                            "estado": "0",
-                                            "ruta": "-",
-                                            "vehiculo": placa.toString(),
-                                          });
-                                      // if (mounted) {
-                                      //  setState(() {
-                                      print("RESPONSE BODY: ${response.body}");
-
-                                      var extraerData = json.decode(response.body);
-                                      resultate = extraerData["state"];
-                                      print("RESULTADO DE INSERCIÓN: ${resultate}");
-                                      //  });
-                                      // }
-                                      String? dato;
-                                      if( int.parse(resultate) >= 0) {
-                                        int total = 0;
-                                        var ddData = [];
-                                        var ddacopios = [];
-                                        int cantidad_jabas = 0;
-                                        for (var i = 0; i < data!.length; i++) {
-                                          cantidad_jabas = int.parse(data![i]["CANTIDAD_JABAS"]);
-                                          if (total <= capacidad! && cantidad_jabas > 0) {
-                                            total += cantidad_jabas;
-                                            print("CAPACIDAD$capacidad ,CANT JABAS$cantidad_jabas");
-                                            if (total > 0) {
-                                              var objeto = {"ALIAS": data![i]["ALIAS"]};
-                                              ddData.add(objeto);
-
-                                              var acopiosViaje = {
-                                                // Le agregas la fecha
-                                                "ALIAS": data![i]["ALIAS"],
-                                                "CANTIDAD_JABAS": data![i]["CANTIDAD_JABAS"],
-                                                "LATITUD": data![i]["LATITUD"],
-                                                "LONGITUD": data![i]["LONGITUD"],
-                                                "SALDO":
-                                                capacidad! >= cantidad_jabas ? cantidad_jabas : capacidad
-                                              };
-                                              ddacopios.add(acopiosViaje);
-                                              print("DATAACOPIO$ddacopios");
-                                            }
-                                          }
-                                        }
-
-                                        var resultdetail;
-                                        for (var i = 0; i < ddacopios.length; i++) {
-                                          var responsedetail = await http.get(
-                                              Uri.parse("${"${url_base +
-                                                  "acp/index.php/transportearandano/setViajeDetail?accion=viajedetail&idviajes=" +
-                                                  resultate +
-                                                  "&alias=" +
-                                                  ddacopios[i]["ALIAS"] +
-                                                  "&latitud=" +
-                                                  ddacopios[i]["LATITUD"] +
-                                                  "&longitud=" +
-                                                  ddacopios[i]["LONGITUD"]}&cantjabas=" +
-                                                  ddacopios[i]["CANTIDAD_JABAS"]}&jabascargadas=0"),
-                                              headers: {"Accept": "application/json"});
-                                          //if (mounted) {
-                                          //  setState(() {
-                                          var extraerData2 = json.decode(responsedetail.body);
-                                          resultdetail = extraerData2["state"];
-                                          print("RESULTADO DE DETALLE: $resultdetail");
-                                          //   });
-                                          //  }
-                                          if(resultdetail.toString().contains("true")){
-                                            await atualizarAcopios(ddacopios[i]["ALIAS"], 0);
-                                          }
-
-                                        }
-
-                                        //Navigator.pop(context);
-                                        if(resultdetail.toString().contains("true")){
-                                          dato = resultate;
+                                      if(mounted){
+                                        await crearViaje();
+                                        setState((){
+                                          dispose();
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
@@ -595,16 +520,8 @@ class _CustomDialogsBuscarState extends State<CustomDialogsBuscar> {
                                                       idviajeactual: dato!),
                                             ),
                                           );
-                                        }
-
-
+                                        });
                                       }
-
-                                      /*await crearViaje().then((resultate) async{
-                                        idviajeresultado = resultate;
-                                      });*/
-
-                                  //Navigator.pop(context);
 
 
                                 }
